@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outlook Meeting Macro — User Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2537;
+    --bg4: #252d42;
+    --accent: #4f8ef7;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --highlight: #f59e0b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --border: #2a3349;
+    --code-bg: #0d1117;
+    --step-active: #1e3a5f;
+    --step-border-active: #4f8ef7;
+    --code-highlight: rgba(79,142,247,0.12);
+    --code-highlight-border: #4f8ef7;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0f1117 0%, #161b27 50%, #1a1f35 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 200px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.25);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .header-badge span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  header h1 {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  header h1 em { font-style: normal; color: var(--accent); }
+  header p { color: var(--text2); font-size: 13px; font-weight: 300; }
+  .header-meta {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+  .meta-pill .dot { width: 5px; height: 5px; border-radius: 50%; }
+  .dot-green { background: var(--accent3); }
+  .dot-blue { background: var(--accent); }
+  .dot-purple { background: var(--accent2); }
+
+  /* ── INSTRUCTION BAR ── */
+  .instruction-bar {
+    background: rgba(245,158,11,0.07);
+    border-bottom: 1px solid rgba(245,158,11,0.15);
+    padding: 10px 40px;
+    font-size: 12px;
+    color: var(--highlight);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+  }
+  .instruction-bar svg { flex-shrink: 0; }
+
+  /* ── MAIN LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    height: calc(100vh - 160px);
+    min-height: 600px;
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px 0;
+  }
+  .left-panel::-webkit-scrollbar { width: 4px; }
+  .left-panel::-webkit-scrollbar-track { background: transparent; }
+  .left-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .section-label {
+    font-size: 9px;
+    font-family: var(--mono);
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    text-transform: uppercase;
+    padding: 0 24px;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 24px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.18s ease;
+    position: relative;
+  }
+  .step-item:hover, .step-item.active {
+    background: var(--step-active);
+    border-left-color: var(--step-border-active);
+  }
+  .step-item:hover .step-title, .step-item.active .step-title {
+    color: var(--text);
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    transition: all 0.18s;
+  }
+  .step-item:hover .step-num, .step-item.active .step-num {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 3px;
+    transition: color 0.18s;
+  }
+  .step-desc {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.5;
+  }
+  .step-tag {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 5px;
+    font-size: 10px;
+    font-family: var(--mono);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 7px;
+    color: var(--text3);
+  }
+  .step-item:hover .step-tag, .step-item.active .step-tag {
+    background: rgba(79,142,247,0.1);
+    border-color: rgba(79,142,247,0.3);
+    color: var(--accent);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 24px;
+  }
+
+  /* Customise section */
+  .custom-item {
+    display: flex;
+    gap: 14px;
+    padding: 12px 24px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.18s ease;
+  }
+  .custom-item:hover, .custom-item.active {
+    background: rgba(124,58,237,0.1);
+    border-left-color: var(--accent2);
+  }
+  .custom-num {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.18s;
+  }
+  .custom-item:hover .custom-num, .custom-item.active .custom-num {
+    background: rgba(124,58,237,0.2);
+    border-color: var(--accent2);
+  }
+  .custom-content { flex: 1; }
+  .custom-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 2px;
+  }
+  .custom-item:hover .custom-title, .custom-item.active .custom-title { color: var(--text); }
+  .custom-desc { font-size: 11px; color: var(--text3); }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    background: var(--code-bg);
+    overflow-y: auto;
+    position: relative;
+  }
+  .right-panel::-webkit-scrollbar { width: 4px; }
+  .right-panel::-webkit-scrollbar-track { background: transparent; }
+  .right-panel::-webkit-scrollbar-thumb { background: #2a3349; border-radius: 2px; }
+
+  .code-header {
+    position: sticky;
+    top: 0;
+    background: #161b27;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+  .code-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .dot-row { display: flex; gap: 5px; }
+  .dot-row span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: block;
+  }
+  .d-red { background: #ff5f57; }
+  .d-yellow { background: #febc2e; }
+  .d-green { background: #28c840; }
+  .code-filename {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .hover-hint {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hover-hint .key {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+  }
+
+  /* Code block */
+  .code-wrap {
+    padding: 20px 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.75;
+    counter-reset: line;
+  }
+
+  .code-line {
+    display: flex;
+    padding: 0 24px 0 0;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .line-num {
+    flex-shrink: 0;
+    width: 48px;
+    text-align: right;
+    padding-right: 16px;
+    color: var(--text3);
+    font-size: 11px;
+    user-select: none;
+    opacity: 0.4;
+  }
+  .line-content {
+    flex: 1;
+    white-space: pre;
+    padding-right: 24px;
+  }
+
+  /* Highlight block */
+  .code-section {
+    transition: background 0.2s;
+    position: relative;
+  }
+  .code-section.highlighted {
+    background: var(--code-highlight);
+  }
+  .code-section.highlighted .code-line {
+    /* nothing extra needed */
+  }
+  .code-section.highlighted::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--code-highlight-border);
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* Editable field overlay */
+  .edit-overlay {
+    display: none;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+  }
+  .code-section.highlighted .edit-overlay { display: flex; }
+  .edit-btn {
+    background: rgba(79,142,247,0.15);
+    border: 1px solid rgba(79,142,247,0.35);
+    border-radius: 5px;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .edit-btn:hover {
+    background: rgba(79,142,247,0.25);
+    border-color: var(--accent);
+  }
+
+  /* Syntax colors */
+  .kw { color: #c792ea; }        /* keyword */
+  .fn { color: #82aaff; }        /* function/sub name */
+  .str { color: #c3e88d; }       /* string */
+  .cmt { color: #546e7a; font-style: italic; }  /* comment */
+  .num { color: #f78c6c; }       /* number */
+  .var { color: #e2e8f0; }       /* variable */
+  .op { color: #89ddff; }        /* operator */
+  .sec { color: #f59e0b; font-weight: 700; } /* section header comment */
+  .editable-val {
+    background: rgba(245,158,11,0.12);
+    border-bottom: 1px dashed rgba(245,158,11,0.5);
+    border-radius: 2px;
+    padding: 0 2px;
+    cursor: text;
+    transition: background 0.15s;
+    outline: none;
+    min-width: 4px;
+    display: inline-block;
+  }
+  .editable-val:hover { background: rgba(245,158,11,0.22); }
+  .editable-val:focus {
+    background: rgba(245,158,11,0.28);
+    border-bottom-color: var(--highlight);
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* Edit modal */
+  .edit-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .edit-modal.open { display: flex; }
+  .modal-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    width: 480px;
+    max-width: 95vw;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+  }
+  .modal-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .modal-subtitle {
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 20px;
+    font-family: var(--mono);
+  }
+  .modal-label {
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .modal-input {
+    width: 100%;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 16px;
+  }
+  .modal-input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text2);
+    padding: 8px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.15s;
+  }
+  .btn-cancel:hover { border-color: var(--text2); color: var(--text); }
+  .btn-apply {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 7px;
+    color: #fff;
+    padding: 8px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-apply:hover { background: #3a7de8; }
+
+  /* Copy button */
+  .copy-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .copy-info { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text2);
+    padding: 7px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--mono);
+    transition: all 0.15s;
+  }
+  .copy-btn:hover {
+    background: var(--bg4);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .copy-btn.copied {
+    background: rgba(16,185,129,0.1);
+    border-color: var(--accent3);
+    color: var(--accent3);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge"><span></span> VBA Macro — Outlook 2016 / 2019 / 2021 / M365</div>
+  <h1>Meeting Appointment <em>Macro</em> — Setup Guide</h1>
+  <p>Hover each step on the left to highlight the corresponding code section. Click editable values to customise.</p>
+  <div class="header-meta">
+    <div class="meta-pill"><span class="dot dot-green"></span> 7 input steps</div>
+    <div class="meta-pill"><span class="dot dot-blue"></span> Bold date &amp; time</div>
+    <div class="meta-pill"><span class="dot dot-purple"></span> Teams link auto-detect</div>
+  </div>
+</header>
+
+<div class="instruction-bar">
+  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#f59e0b" stroke-width="1.5"/><path d="M8 7v5M8 5v1" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/></svg>
+  Hover a step → highlights the code block &nbsp;|&nbsp; Click the <span style="background:rgba(245,158,11,0.15);border:1px dashed rgba(245,158,11,0.4);border-radius:3px;padding:0 5px;margin:0 2px;">yellow underlined values</span> in the code → edit them directly
+</div>
+
+<div class="layout">
+
+  <!-- ═══════════════ LEFT PANEL ═══════════════ -->
+  <div class="left-panel" id="leftPanel">
+
+    <div class="section-label">Installation</div>
+
+    <div class="step-item" data-target="sec-install">
+      <div class="step-num">①</div>
+      <div class="step-content">
+        <div class="step-title">Open VBA Editor</div>
+        <div class="step-desc">Press <strong>Alt+F11</strong> in Outlook to open the Visual Basic editor</div>
+        <div class="step-tag">Alt + F11</div>
+      </div>
+    </div>
+
+    <div class="step-item" data-target="sec-module">
+      <div class="step-num">②</div>
+      <div class="step-content">
+        <div class="step-title">Create New Module</div>
+        <div class="step-desc">Insert → Module, then paste the entire code block into the blank window</div>
+        <div class="step-tag">Insert → Module</div>
+      </div>
+    </div>
+
+    <div class="step-item" data-target="sec-ribbon">
+      <div class="step-num">③</div>
+      <div class="step-content">
+        <div class="step-title">Add Ribbon Button</div>
+        <div class="step-desc">Right-click ribbon → Customize → find macro → add to new group</div>
+        <div class="step-tag">Customize Ribbon</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Input Steps (run order)</div>
+
+    <div class="step-item" data-target="sec-step1">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Meeting Title</div>
+        <div class="step-desc">Subject line shown in calendar and recipient inbox. Team name appended automatically.</div>
+        <div class="step-tag">Step 1 - Title</div>
+      </div>
+    </div>
+
+    <div class="step-item" data-target="sec-step2">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Recipient Team</div>
+        <div class="step-desc">Team name used in "Dear ___ Team," greeting. Do not include the word "Team".</div>
+        <div class="step-tag">Step 2 - Recipient</div>
+      </div>
+    </div>
+
+    <div class="step-item" data-target="sec-step3">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Short Description</div>
+        <div class="step-desc">Brief phrase describing the meeting purpose. Appears after "meeting of …"</div>
+        <div class="step-tag">Step 3 - Description</div>
+      </div>
+    </div>
+
+    <div class="step-item" data-target="sec-step4">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Meeting Date</div>
+        <div class="step-desc">Accepts any format: "7 April 2026", "07/04/2026", "2026-04-07". Always outputs English.</div>
+        <div class="step-tag">Step 4 - Date</div>
+      </div>
+    </div>
+
+    <div class="step-item" data-target="sec-step5">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Start &amp; End Time</div>
+        <div class="step-desc">No AM/PM typed → 24hr output. With AM/PM typed → 12hr output. Formats match automatically.</div>
+        <div class="step-tag">Step 5 - Time</div>
+      </div>
+    </div>
+
+    <div class="step-item" data-target="sec-step6">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">Location</div>
+        <div class="step-desc">If text contains "teams", macro auto-attempts to generate a Teams join link via COM add-in.</div>
+        <div class="step-tag">Step 6 - Location</div>
+      </div>
+    </div>
+
+    <div class="step-item" data-target="sec-step7">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <div class="step-title">Agenda Items (1–5)</div>
+        <div class="step-desc">Leave any item blank to skip. Numbering adjusts automatically — no gaps.</div>
+        <div class="step-tag">Step 7 - Agendas</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Customise</div>
+
+    <div class="custom-item" data-target="sec-signoff">
+      <div class="custom-num">✍</div>
+      <div class="custom-content">
+        <div class="custom-title">Name &amp; Sign-off</div>
+        <div class="custom-desc">Change sender name, title prefix/suffix, closing line</div>
+      </div>
+    </div>
+
+    <div class="custom-item" data-target="sec-defaults">
+      <div class="custom-num">⚙</div>
+      <div class="custom-content">
+        <div class="custom-title">Default Values</div>
+        <div class="custom-desc">Pre-fill location, last agenda item, default times</div>
+      </div>
+    </div>
+
+    <div class="custom-item" data-target="sec-body">
+      <div class="custom-num">📝</div>
+      <div class="custom-content">
+        <div class="custom-title">Body Text</div>
+        <div class="custom-desc">Edit greeting, closing sentence, section labels</div>
+      </div>
+    </div>
+
+  </div>
+  <!-- end left panel -->
+
+  <!-- ═══════════════ RIGHT PANEL ═══════════════ -->
+  <div class="right-panel" id="rightPanel">
+
+    <div class="code-header">
+      <div class="code-header-left">
+        <div class="dot-row">
+          <span class="d-red"></span>
+          <span class="d-yellow"></span>
+          <span class="d-green"></span>
+        </div>
+        <div class="code-filename">CreateMeetingFromTemplate.bas</div>
+      </div>
+      <div class="hover-hint">hover step → highlight &nbsp;<span class="key">✎</span> click value to edit</div>
+    </div>
+
+    <div class="code-wrap" id="codeWrap">
+
+<!-- ══ SECTION: INSTALL NOTE ══ -->
+<div class="code-section" id="sec-install">
+<div class="code-line"><span class="line-num">1</span><span class="line-content"><span class="cmt">' ═══════════════════════════════════════════════════════════</span></span></div>
+<div class="code-line"><span class="line-num">2</span><span class="line-content"><span class="cmt">'  INSTALLATION: Alt+F11 → Insert → Module → Paste all code</span></span></div>
+<div class="code-line"><span class="line-num">3</span><span class="line-content"><span class="cmt">'  Then: Right-click ribbon → Customize → Add macro button</span></span></div>
+<div class="code-line"><span class="line-num">4</span><span class="line-content"><span class="cmt">' ═══════════════════════════════════════════════════════════</span></span></div>
+</div>
+
+<!-- ══ SECTION: MODULE NOTE ══ -->
+<div class="code-section" id="sec-module">
+<div class="code-line"><span class="line-num">5</span><span class="line-content"><span class="cmt">'  ⚠  ALL functions below must stay in ONE single module</span></span></div>
+<div class="code-line"><span class="line-num">6</span><span class="line-content"><span class="cmt">'  Splitting into separate modules causes "Sub not defined"</span></span></div>
+</div>
+
+<!-- ══ SECTION: RIBBON NOTE ══ -->
+<div class="code-section" id="sec-ribbon">
+<div class="code-line"><span class="line-num">7</span><span class="line-content"><span class="cmt">'  Ribbon: File → Options → Customize Ribbon → Macros</span></span></div>
+<div class="code-line"><span class="line-num">8</span><span class="line-content"><span class="cmt">'  Find: Project1.CreateMeetingFromTemplate → Add to group</span></span></div>
+<div class="code-line"><span class="line-num">9</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ HELPERS (no highlight) ══ -->
+<div class="code-section" id="sec-helpers">
+<div class="code-line"><span class="line-num">10</span><span class="line-content"><span class="kw">Function </span><span class="fn">ParseDate</span>(<span class="var">s</span> <span class="kw">As String</span>) <span class="kw">As Date</span></span></div>
+<div class="code-line"><span class="line-num">11</span><span class="line-content">  <span class="cmt">' Accepts: "7 April 2026" / "07/04/2026" / "2026-04-07"</span></span></div>
+<div class="code-line"><span class="line-num">12</span><span class="line-content">  <span class="cmt">' ... (full function in complete code paste)</span></span></div>
+<div class="code-line"><span class="line-num">13</span><span class="line-content"><span class="kw">End Function</span></span></div>
+<div class="code-line"><span class="line-num">14</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">15</span><span class="line-content"><span class="kw">Function </span><span class="fn">ParseTime</span>(<span class="var">s</span> <span class="kw">As String</span>, <span class="kw">ByRef</span> <span class="var">use24hr</span> <span class="kw">As Boolean</span>) <span class="kw">As Date</span></span></div>
+<div class="code-line"><span class="line-num">16</span><span class="line-content">  <span class="cmt">' No AM/PM in input = 24hr. With AM/PM = 12hr.</span></span></div>
+<div class="code-line"><span class="line-num">17</span><span class="line-content"><span class="kw">End Function</span></span></div>
+<div class="code-line"><span class="line-num">18</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">19</span><span class="line-content"><span class="kw">Function </span><span class="fn">FormatDateEnglish</span>(<span class="var">d</span> <span class="kw">As Date</span>) <span class="kw">As String</span></span></div>
+<div class="code-line"><span class="line-num">20</span><span class="line-content">  <span class="cmt">' Returns "Wednesday, 7 April 2026" — ignores Windows locale</span></span></div>
+<div class="code-line"><span class="line-num">21</span><span class="line-content"><span class="kw">End Function</span></span></div>
+<div class="code-line"><span class="line-num">22</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">23</span><span class="line-content"><span class="kw">Function </span><span class="fn">FormatTimeDisplay</span>(<span class="var">t</span> <span class="kw">As Date</span>, <span class="var">use24hr</span> <span class="kw">As Boolean</span>) <span class="kw">As String</span></span></div>
+<div class="code-line"><span class="line-num">24</span><span class="line-content">  <span class="cmt">' Returns "15:00" or "03:00 PM" depending on input style</span></span></div>
+<div class="code-line"><span class="line-num">25</span><span class="line-content"><span class="kw">End Function</span></span></div>
+<div class="code-line"><span class="line-num">26</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ MAIN SUB START ══ -->
+<div class="code-section">
+<div class="code-line"><span class="line-num">27</span><span class="line-content"><span class="cmt">' ═══════════════════════════════════════════════════════════</span></span></div>
+<div class="code-line"><span class="line-num">28</span><span class="line-content"><span class="cmt">'  MAIN MACRO</span></span></div>
+<div class="code-line"><span class="line-num">29</span><span class="line-content"><span class="cmt">' ═══════════════════════════════════════════════════════════</span></span></div>
+<div class="code-line"><span class="line-num">30</span><span class="line-content"><span class="kw">Sub </span><span class="fn">CreateMeetingFromTemplate</span>()</span></div>
+<div class="code-line"><span class="line-num">31</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ STEP 1 ══ -->
+<div class="code-section" id="sec-step1">
+<div class="code-line"><span class="line-num">32</span><span class="line-content">  <span class="sec">' === STEP 1: TITLE ===</span></span></div>
+<div class="code-line"><span class="line-num">33</span><span class="line-content">  <span class="kw">Dim </span><span class="var">subject</span> <span class="kw">As String</span></span></div>
+<div class="code-line"><span class="line-num">34</span><span class="line-content">  <span class="var">subject</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Meeting Title (appointment subject line):"</span>,</span></div>
+<div class="code-line"><span class="line-num">35</span><span class="line-content">             <span class="str">"Step 1 - Title"</span>, <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultTitle" data-label="Default Title Text">Project Discussion</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">36</span><span class="line-content">  <span class="kw">If</span> <span class="var">subject</span> <span class="op">=</span> <span class="str">""</span> <span class="kw">Then Exit Sub</span></span></div>
+<div class="code-line"><span class="line-num">37</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ STEP 2 ══ -->
+<div class="code-section" id="sec-step2">
+<div class="code-line"><span class="line-num">38</span><span class="line-content">  <span class="sec">' === STEP 2: RECIPIENT TEAM ===</span></span></div>
+<div class="code-line"><span class="line-num">39</span><span class="line-content">  <span class="kw">Dim </span><span class="var">recipientTeam</span> <span class="kw">As String</span></span></div>
+<div class="code-line"><span class="line-num">40</span><span class="line-content">  <span class="var">recipientTeam</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Recipient Team name (e.g. Engineering):"</span>,</span></div>
+<div class="code-line"><span class="line-num">41</span><span class="line-content">             <span class="str">"Step 2 - Recipient"</span>, <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultTeam" data-label="Default Team Name">xxxx</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">42</span><span class="line-content">  <span class="kw">If</span> <span class="var">recipientTeam</span> <span class="op">=</span> <span class="str">""</span> <span class="kw">Then Exit Sub</span></span></div>
+<div class="code-line"><span class="line-num">43</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ STEP 3 ══ -->
+<div class="code-section" id="sec-step3">
+<div class="code-line"><span class="line-num">44</span><span class="line-content">  <span class="sec">' === STEP 3: SHORT DESCRIPTION ===</span></span></div>
+<div class="code-line"><span class="line-num">45</span><span class="line-content">  <span class="kw">Dim </span><span class="var">description</span> <span class="kw">As String</span></span></div>
+<div class="code-line"><span class="line-num">46</span><span class="line-content">  <span class="var">description</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Short description for meeting purpose:"</span>,</span></div>
+<div class="code-line"><span class="line-num">47</span><span class="line-content">             <span class="str">"Step 3 - Description"</span>, <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultDesc" data-label="Default Description">Monthly Progress Review</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">48</span><span class="line-content">  <span class="kw">If</span> <span class="var">description</span> <span class="op">=</span> <span class="str">""</span> <span class="kw">Then Exit Sub</span></span></div>
+<div class="code-line"><span class="line-num">49</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ STEP 4 ══ -->
+<div class="code-section" id="sec-step4">
+<div class="code-line"><span class="line-num">50</span><span class="line-content">  <span class="sec">' === STEP 4: DATE ===</span></span></div>
+<div class="code-line"><span class="line-num">51</span><span class="line-content">  <span class="cmt">'  Accepted: "7 April 2026" / "7 Apr 2026" / "07/04/2026"</span></span></div>
+<div class="code-line"><span class="line-num">52</span><span class="line-content">  <span class="cmt">'            "2026-04-07" / "April 7, 2026"</span></span></div>
+<div class="code-line"><span class="line-num">53</span><span class="line-content">  <span class="cmt">'  ⚠ Do NOT type the day name (e.g. "Monday, …") — added auto</span></span></div>
+<div class="code-line"><span class="line-num">54</span><span class="line-content">  <span class="kw">Dim </span><span class="var">meetingDate</span> <span class="kw">As String</span></span></div>
+<div class="code-line"><span class="line-num">55</span><span class="line-content">  <span class="kw">Dim </span><span class="var">parsedDate</span> <span class="kw">As Date</span></span></div>
+<div class="code-line"><span class="line-num">56</span><span class="line-content">  <span class="cmt">'  Default pre-fills tomorrow's date automatically</span></span></div>
+<div class="code-line"><span class="line-num">57</span><span class="line-content">  <span class="cmt">'  If wrong format → shows error, asks to re-enter (no crash)</span></span></div>
+<div class="code-line"><span class="line-num">58</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ STEP 5 ══ -->
+<div class="code-section" id="sec-step5">
+<div class="code-line"><span class="line-num">59</span><span class="line-content">  <span class="sec">' === STEP 5: START TIME &amp; END TIME ===</span></span></div>
+<div class="code-line"><span class="line-num">60</span><span class="line-content">  <span class="cmt">'  24-hr input (no AM/PM) → displays as  15:00</span></span></div>
+<div class="code-line"><span class="line-num">61</span><span class="line-content">  <span class="cmt">'  12-hr input (with AM/PM) → displays as  03:00 PM</span></span></div>
+<div class="code-line"><span class="line-num">62</span><span class="line-content">  <span class="cmt">'  No-colon accepted: 0900 → 09:00,  900 → 09:00</span></span></div>
+<div class="code-line"><span class="line-num">63</span><span class="line-content">  <span class="kw">Dim </span><span class="var">parsedStart</span> <span class="kw">As Date</span>, <span class="var">parsedEnd</span> <span class="kw">As Date</span></span></div>
+<div class="code-line"><span class="line-num">64</span><span class="line-content">  <span class="kw">Dim </span><span class="var">use24Start</span> <span class="kw">As Boolean</span></span></div>
+<div class="code-line"><span class="line-num">65</span><span class="line-content">  <span class="cmt">'  Start default:</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultStart" data-label="Default Start Time">09:00</span>"</span>  <span class="cmt">End default:</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultEnd" data-label="Default End Time">10:00</span>"</span></span></div>
+<div class="code-line"><span class="line-num">66</span><span class="line-content">  <span class="cmt">'  Both inputs re-prompt if format unreadable</span></span></div>
+<div class="code-line"><span class="line-num">67</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ STEP 6 ══ -->
+<div class="code-section" id="sec-step6">
+<div class="code-line"><span class="line-num">68</span><span class="line-content">  <span class="sec">' === STEP 6: LOCATION ===</span></span></div>
+<div class="code-line"><span class="line-num">69</span><span class="line-content">  <span class="kw">Dim </span><span class="var">location</span> <span class="kw">As String</span></span></div>
+<div class="code-line"><span class="line-num">70</span><span class="line-content">  <span class="var">location</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Location: (e.g. MS Teams / Room A)"</span>,</span></div>
+<div class="code-line"><span class="line-num">71</span><span class="line-content">             <span class="str">"Step 6 - Location"</span>, <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultLocation" data-label="Default Location">MS Teams</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">72</span><span class="line-content">  <span class="cmt">'  ✅ If location contains "teams" → auto-adds Teams join link</span></span></div>
+<div class="code-line"><span class="line-num">73</span><span class="line-content">  <span class="cmt">'  If Teams add-in not found → click Teams btn in ribbon instead</span></span></div>
+<div class="code-line"><span class="line-num">74</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ STEP 7 ══ -->
+<div class="code-section" id="sec-step7">
+<div class="code-line"><span class="line-num">75</span><span class="line-content">  <span class="sec">' === STEP 7: AGENDAS (1–5, skip any by leaving blank) ===</span></span></div>
+<div class="code-line"><span class="line-num">76</span><span class="line-content">  <span class="kw">Dim </span><span class="var">ag</span>(<span class="num">1</span> <span class="kw">To</span> <span class="num">5</span>) <span class="kw">As String</span></span></div>
+<div class="code-line"><span class="line-num">77</span><span class="line-content">  <span class="var">ag</span>(<span class="num">1</span>) <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Agenda Item 1: (leave blank to skip)"</span>, <span class="str">"Step 7 [1/5]"</span>, <span class="str">""</span>)</span></div>
+<div class="code-line"><span class="line-num">78</span><span class="line-content">  <span class="var">ag</span>(<span class="num">2</span>) <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Agenda Item 2: (leave blank to skip)"</span>, <span class="str">"Step 7 [2/5]"</span>, <span class="str">""</span>)</span></div>
+<div class="code-line"><span class="line-num">79</span><span class="line-content">  <span class="var">ag</span>(<span class="num">3</span>) <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Agenda Item 3: (leave blank to skip)"</span>, <span class="str">"Step 7 [3/5]"</span>, <span class="str">""</span>)</span></div>
+<div class="code-line"><span class="line-num">80</span><span class="line-content">  <span class="var">ag</span>(<span class="num">4</span>) <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Agenda Item 4: (leave blank to skip)"</span>, <span class="str">"Step 7 [4/5]"</span>, <span class="str">""</span>)</span></div>
+<div class="code-line"><span class="line-num">81</span><span class="line-content">  <span class="var">ag</span>(<span class="num">5</span>) <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Agenda Item 5: (leave blank to skip)"</span>, <span class="str">"Step 7 [5/5]"</span>,</span></div>
+<div class="code-line"><span class="line-num">82</span><span class="line-content">             <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultAgenda5" data-label="Default Agenda Item 5">Action items for proceed</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">83</span><span class="line-content">  <span class="cmt">'  Numbering: only filled items counted — no gaps in sequence</span></span></div>
+<div class="code-line"><span class="line-num">84</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ BODY / SIGN-OFF ══ -->
+<div class="code-section" id="sec-body">
+<div class="code-line"><span class="line-num">85</span><span class="line-content">  <span class="sec">' === BUILD BODY (WordEditor — supports bold) ===</span></span></div>
+<div class="code-line"><span class="line-num">86</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="greetingLine" data-label="Greeting Line Template">Dear </span>"</span> <span class="op">&amp;</span> <span class="var">recipientTeam</span> <span class="op">&amp;</span> <span class="str">" Team,"</span></span></div>
+<div class="code-line"><span class="line-num">87</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="openingLine" data-label="Opening Sentence">I would like to appoint for meeting of </span>"</span> <span class="op">&amp;</span> <span class="var">description</span></span></div>
+<div class="code-line"><span class="line-num">88</span><span class="line-content">  <span class="cmt">'  Date / Time labels written in BOLD via oSel.Font.Bold</span></span></div>
+<div class="code-line"><span class="line-num">89</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="closingLine" data-label="Closing Sentence">Please join in mentioned time.</span>"</span></span></div>
+<div class="code-line"><span class="line-num">90</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ SIGN-OFF ══ -->
+<div class="code-section" id="sec-signoff">
+<div class="code-line"><span class="line-num">91</span><span class="line-content">  <span class="sec">' === SIGN-OFF ===</span></span></div>
+<div class="code-line"><span class="line-num">92</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="signoffLine" data-label="Sign-off / Closing Word">Best Regards,</span>"</span></span></div>
+<div class="code-line"><span class="line-num">93</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="senderName" data-label="Your Full Name (with prefix/suffix)">Sarayu P.</span>"</span></span></div>
+<div class="code-line"><span class="line-num">94</span><span class="line-content">  <span class="cmt">'  Prefix examples: "Eng. Sarayu P."  "Dr. Sarayu P."  "Ms. Sarayu P."</span></span></div>
+<div class="code-line"><span class="line-num">95</span><span class="line-content">  <span class="cmt">'  Suffix examples: "Sarayu P., PE"   "Sarayu P., PMP"</span></span></div>
+<div class="code-line"><span class="line-num">96</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ DEFAULTS ══ -->
+<div class="code-section" id="sec-defaults">
+<div class="code-line"><span class="line-num">97</span><span class="line-content">  <span class="sec">' === DEFAULT VALUES QUICK REFERENCE ===</span></span></div>
+<div class="code-line"><span class="line-num">98</span><span class="line-content">  <span class="cmt">'  Title default    → line 35  ← editable above</span></span></div>
+<div class="code-line"><span class="line-num">99</span><span class="line-content">  <span class="cmt">'  Team default     → line 41  ← editable above</span></span></div>
+<div class="code-line"><span class="line-num">100</span><span class="line-content">  <span class="cmt">'  Desc default     → line 47  ← editable above</span></span></div>
+<div class="code-line"><span class="line-num">101</span><span class="line-content">  <span class="cmt">'  Start time def   → line 65  ← editable above</span></span></div>
+<div class="code-line"><span class="line-num">102</span><span class="line-content">  <span class="cmt">'  End time def     → line 65  ← editable above</span></span></div>
+<div class="code-line"><span class="line-num">103</span><span class="line-content">  <span class="cmt">'  Location default → line 71  ← editable above</span></span></div>
+<div class="code-line"><span class="line-num">104</span><span class="line-content">  <span class="cmt">'  Agenda5 default  → line 82  ← editable above</span></span></div>
+<div class="code-line"><span class="line-num">105</span><span class="line-content"></span></div>
+</div>
+
+<!-- ══ END ══ -->
+<div class="code-section">
+<div class="code-line"><span class="line-num">106</span><span class="line-content">  <span class="cmt">' ... (appointment creation, Teams link, WordEditor body write)</span></span></div>
+<div class="code-line"><span class="line-num">107</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">108</span><span class="line-content"><span class="kw">End Sub</span></span></div>
+</div>
+
+    </div><!-- end code-wrap -->
+
+    <div class="copy-bar">
+      <div class="copy-info">📋 Copy full macro code from the VBA editor after pasting</div>
+      <button class="copy-btn" id="copyBtn" onclick="copyCode()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Copy editable values summary
+      </button>
+    </div>
+
+  </div>
+  <!-- end right panel -->
+
+</div><!-- end layout -->
+
+<!-- ══ EDIT MODAL ══ -->
+<div class="edit-modal" id="editModal">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">Edit value</div>
+    <div class="modal-subtitle" id="modalSubtitle">Changes reflect in the code view above</div>
+    <div class="modal-label">New value:</div>
+    <input class="modal-input" id="modalInput" type="text" />
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-apply" onclick="applyModal()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── HOVER: highlight code section ──
+  const steps = document.querySelectorAll('[data-target]');
+  let activeTarget = null;
+
+  steps.forEach(step => {
+    step.addEventListener('mouseenter', () => {
+      const targetId = step.getAttribute('data-target');
+      // Clear previous
+      if (activeTarget) {
+        document.getElementById(activeTarget)?.classList.remove('highlighted');
+        document.querySelectorAll('.step-item, .custom-item').forEach(s => s.classList.remove('active'));
+      }
+      activeTarget = targetId;
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.classList.add('highlighted');
+        step.classList.add('active');
+        // Scroll code panel to section
+        target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+    step.addEventListener('mouseleave', () => {
+      if (activeTarget) {
+        document.getElementById(activeTarget)?.classList.remove('highlighted');
+        step.classList.remove('active');
+        activeTarget = null;
+      }
+    });
+  });
+
+  // ── EDITABLE VALUES — click to open modal ──
+  let currentEditable = null;
+
+  document.querySelectorAll('.editable-val').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentEditable = el;
+      const label = el.getAttribute('data-label') || 'Edit value';
+      document.getElementById('modalTitle').textContent = 'Edit: ' + label;
+      document.getElementById('modalSubtitle').textContent = 'data-field: ' + el.getAttribute('data-field');
+      document.getElementById('modalInput').value = el.textContent;
+      document.getElementById('editModal').classList.add('open');
+      setTimeout(() => document.getElementById('modalInput').focus(), 50);
+    });
+    // Prevent contenteditable from being typed directly (use modal instead)
+    el.addEventListener('keydown', (e) => { e.preventDefault(); });
+  });
+
+  function closeModal() {
+    document.getElementById('editModal').classList.remove('open');
+    currentEditable = null;
+  }
+
+  function applyModal() {
+    if (currentEditable) {
+      const val = document.getElementById('modalInput').value;
+      currentEditable.textContent = val;
+      // Flash highlight
+      currentEditable.style.background = 'rgba(16,185,129,0.25)';
+      setTimeout(() => { currentEditable.style.background = ''; }, 600);
+    }
+    closeModal();
+  }
+
+  // Enter key in modal
+  document.getElementById('modalInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') applyModal();
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // Click outside modal to close
+  document.getElementById('editModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('editModal')) closeModal();
+  });
+
+  // ── COPY BUTTON ──
+  function copyCode() {
+    const fields = {};
+    document.querySelectorAll('.editable-val').forEach(el => {
+      fields[el.getAttribute('data-label')] = el.textContent;
+    });
+    let summary = '=== Outlook Meeting Macro — Customised Values ===\n\n';
+    Object.entries(fields).forEach(([k,v]) => {
+      summary += `${k}:\n  "${v}"\n\n`;
+    });
+    navigator.clipboard.writeText(summary).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.classList.add('copied');
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied!`;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy editable values summary`;
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
