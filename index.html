@@ -3,310 +3,419 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Outlook Meeting Macro — User Manual Rev.1</title>
+<title>Outlook Meeting Macro — User Manual Rev.2</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:#2b2118;--bg2:#332820;--bg3:#3d3028;--bg4:#473830;
-    --accent:#e8a87c;--accent2:#d4856a;--accent3:#7ec8a0;--highlight:#f0c060;--red-soft:#e8856a;
-    --text:#f5ede4;--text2:#c9b5a3;--text3:#8c7a6b;--border:#4a3a2e;--code-bg:#241c14;
-    --step-active:#4a3220;--step-border-active:#e8a87c;
-    --code-highlight:rgba(232,168,124,.10);--code-highlight-border:#e8a87c;
-    --mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh}
-  header{background:linear-gradient(135deg,#2b2118 0%,#332820 50%,#3a2a1e 100%);border-bottom:1px solid var(--border);padding:28px 40px 24px;position:relative;overflow:hidden}
-  header::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(232,168,124,.07) 0%,transparent 70%);pointer-events:none}
-  .header-top-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
-  .header-left{flex:1}
-  .header-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(232,168,124,.1);border:1px solid rgba(232,168,124,.25);border-radius:20px;padding:4px 12px;font-size:11px;font-family:var(--mono);color:var(--accent);letter-spacing:.05em;margin-bottom:10px}
-  .header-badge span{width:6px;height:6px;background:var(--accent);border-radius:50%;display:inline-block;animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  header h1{font-size:24px;font-weight:600;color:var(--text);letter-spacing:-.02em;margin-bottom:5px}
-  header h1 em{font-style:normal;color:var(--accent)}
-  header p{color:var(--text2);font-size:13px;font-weight:300}
-  .header-meta{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap}
-  .meta-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);font-family:var(--mono)}
-  .meta-pill .dot{width:5px;height:5px;border-radius:50%}
-  .dot-green{background:var(--accent3)}.dot-peach{background:var(--accent)}.dot-coral{background:var(--accent2)}.dot-gold{background:var(--highlight)}
-  .restart-btn{display:flex;align-items:center;gap:7px;background:rgba(232,133,106,.12);border:1px solid rgba(232,133,106,.35);border-radius:9px;color:var(--red-soft);font-family:var(--mono);font-size:11px;padding:8px 16px;cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0;margin-top:4px}
-  .restart-btn:hover{background:rgba(232,133,106,.22);border-color:var(--red-soft)}
-  .instruction-bar{background:rgba(240,192,96,.06);border-bottom:1px solid rgba(240,192,96,.14);padding:9px 40px;font-size:11px;color:var(--highlight);display:flex;align-items:center;gap:8px;font-family:var(--mono);flex-wrap:wrap}
-  .layout{display:grid;grid-template-columns:420px 1fr;height:calc(100vh - 152px);min-height:600px}
-  .left-panel{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:20px 0}
-  .left-panel::-webkit-scrollbar{width:4px}.left-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-  .section-label{font-size:9px;font-family:var(--mono);letter-spacing:.12em;color:var(--text3);text-transform:uppercase;padding:0 24px;margin-bottom:10px;margin-top:6px}
-  .step-item{display:flex;gap:14px;padding:13px 24px;cursor:pointer;border-left:2px solid transparent;transition:all .18s ease}
-  .step-item:hover,.step-item.active{background:var(--step-active);border-left-color:var(--step-border-active)}
-  .step-item:hover .step-title,.step-item.active .step-title{color:var(--text)}
-  .step-num{flex-shrink:0;width:28px;height:28px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);transition:all .18s}
-  .step-item:hover .step-num,.step-item.active .step-num{background:var(--accent);border-color:var(--accent);color:#2b2118}
-  .step-content{flex:1;min-width:0}
-  .step-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:2px;transition:color .18s}
-  .step-desc{font-size:11px;color:var(--text3);line-height:1.5}
-  .step-tag{display:inline-flex;align-items:center;margin-top:5px;font-size:10px;font-family:var(--mono);background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1px 7px;color:var(--text3);transition:all .18s}
-  .step-item:hover .step-tag,.step-item.active .step-tag{background:rgba(232,168,124,.1);border-color:rgba(232,168,124,.3);color:var(--accent)}
-  .divider{height:1px;background:var(--border);margin:10px 24px}
-  .custom-item{display:flex;gap:14px;padding:11px 24px;cursor:pointer;border-left:2px solid transparent;transition:all .18s ease}
-  .custom-item:hover,.custom-item.active{background:rgba(212,133,106,.1);border-left-color:var(--accent2)}
-  .custom-num{flex-shrink:0;width:28px;height:28px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .18s}
-  .custom-item:hover .custom-num,.custom-item.active .custom-num{background:rgba(212,133,106,.18);border-color:var(--accent2)}
-  .custom-content{flex:1}
-  .custom-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:2px;transition:color .18s}
-  .custom-item:hover .custom-title,.custom-item.active .custom-title{color:var(--text)}
-  .custom-desc{font-size:11px;color:var(--text3)}
-  .right-panel{background:var(--code-bg);display:flex;flex-direction:column;overflow:hidden}
-  .code-header{background:#2b2118;border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-  .code-header-left{display:flex;align-items:center;gap:10px}
-  .dot-row{display:flex;gap:5px}
-  .dot-row span{width:10px;height:10px;border-radius:50%;display:block}
-  .d-red{background:#e8856a}.d-yellow{background:#e8c06a}.d-green{background:#7ec8a0}
-  .code-filename{font-family:var(--mono);font-size:11px;color:var(--text3)}
-  .rev-tag{font-family:var(--mono);font-size:10px;background:rgba(232,168,124,.1);border:1px solid rgba(232,168,124,.25);border-radius:4px;padding:1px 7px;color:var(--accent)}
-  .hover-hint{font-size:10px;color:var(--text3);font-family:var(--mono)}
-  .code-scroll{flex:1;overflow-y:auto}
-  .code-scroll::-webkit-scrollbar{width:4px}.code-scroll::-webkit-scrollbar-thumb{background:#3a2e24;border-radius:2px}
-  .code-wrap{padding:16px 0;font-family:var(--mono);font-size:12px;line-height:1.75}
-  .code-line{display:flex;padding:0 24px 0 0}
-  .line-num{flex-shrink:0;width:48px;text-align:right;padding-right:16px;color:var(--text3);font-size:11px;user-select:none;opacity:.35}
-  .line-content{flex:1;white-space:pre;padding-right:24px}
-  .code-section{transition:background .18s;position:relative}
-  .code-section.highlighted{background:var(--code-highlight)}
-  .code-section.highlighted::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--code-highlight-border);border-radius:0 2px 2px 0}
-  .kw{color:#d4a0c8}.fn{color:#e8c88a}.str{color:#b8d88a}.cmt{color:#6a5a4a;font-style:italic}.num{color:#e8a878}.var{color:#f0e0d0}.op{color:#a0d0c8}.sec{color:#f0c060;font-weight:700}
-  .editable-val{background:rgba(240,192,96,.10);border-bottom:1px dashed rgba(240,192,96,.5);border-radius:2px;padding:0 2px;cursor:pointer;transition:background .14s;outline:none;min-width:4px;display:inline-block}
-  .editable-val:hover{background:rgba(240,192,96,.20)}
-  .module-name-val{background:rgba(232,133,106,.14);border-bottom:1px dashed rgba(232,133,106,.55);border-radius:2px;padding:0 3px;cursor:pointer;transition:background .14s;outline:none;display:inline-block;color:#f0b090}
-  .module-name-val:hover{background:rgba(232,133,106,.26)}
-  .edit-modal,.restart-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:100;align-items:center;justify-content:center}
-  .edit-modal.open,.restart-modal.open{display:flex}
-  .modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:26px;width:460px;max-width:95vw;box-shadow:0 24px 48px rgba(0,0,0,.45)}
-  .modal-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px}
-  .modal-subtitle{font-size:11px;color:var(--text3);margin-bottom:18px;font-family:var(--mono)}
-  .modal-label{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500}
-  .modal-input{width:100%;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .15s;margin-bottom:16px}
-  .modal-input:focus{border-color:var(--accent)}
-  .modal-actions{display:flex;gap:10px;justify-content:flex-end}
-  .btn-cancel{background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--text2);padding:8px 18px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:all .15s}
-  .btn-cancel:hover{border-color:var(--text2);color:var(--text)}
-  .btn-apply{background:var(--accent);border:1px solid var(--accent);border-radius:7px;color:#2b2118;padding:8px 18px;font-size:13px;cursor:pointer;font-family:var(--sans);font-weight:600;transition:all .15s}
-  .btn-apply:hover{background:#d49060}
-  .restart-box{background:var(--bg2);border:1px solid rgba(232,133,106,.4);border-radius:12px;padding:28px;width:380px;max-width:95vw;box-shadow:0 24px 48px rgba(0,0,0,.5);text-align:center}
-  .restart-icon{width:44px;height:44px;background:rgba(232,133,106,.12);border:1px solid rgba(232,133,106,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px}
-  .restart-box h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px}
-  .restart-box p{font-size:12px;color:var(--text3);margin-bottom:22px;line-height:1.6}
-  .restart-actions{display:flex;gap:10px;justify-content:center}
-  .btn-no{background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--text2);padding:8px 24px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:all .15s}
-  .btn-no:hover{border-color:var(--text2);color:var(--text)}
-  .btn-restart{background:var(--red-soft);border:1px solid var(--red-soft);border-radius:7px;color:#2b2118;padding:8px 24px;font-size:13px;cursor:pointer;font-family:var(--sans);font-weight:600;transition:all .15s}
-  .btn-restart:hover{background:#d4705a}
-  .copy-bar{background:var(--bg2);border-top:1px solid var(--border);padding:11px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px}
-  .copy-info{font-size:11px;color:var(--text3);font-family:var(--mono);flex:1}
-  .copy-btn{display:flex;align-items:center;gap:7px;background:var(--accent);border:1px solid var(--accent);border-radius:7px;color:#2b2118;padding:9px 20px;font-size:12px;cursor:pointer;font-family:var(--mono);font-weight:700;transition:all .15s;white-space:nowrap}
-  .copy-btn:hover{background:#d49060;border-color:#d49060}
-  .copy-btn.copied{background:rgba(126,200,160,.15);border-color:var(--accent3);color:var(--accent3)}
+:root{
+  --bg:#2b2118;--bg2:#332820;--bg3:#3d3028;--bg4:#473830;
+  --accent:#e8a87c;--accent2:#d4856a;--accent3:#7ec8a0;--highlight:#f0c060;--red-soft:#e8856a;
+  --text:#f5ede4;--text2:#c9b5a3;--text3:#8c7a6b;--border:#4a3a2e;--code-bg:#241c14;
+  --step-active:#4a3220;--step-border-active:#e8a87c;
+  --code-highlight:rgba(232,168,124,.10);--code-highlight-border:#e8a87c;
+  --mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* ── HEADER ── */
+header{background:linear-gradient(135deg,#2b2118 0%,#332820 50%,#3a2a1e 100%);border-bottom:1px solid var(--border);padding:20px 32px 16px;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(232,168,124,.07) 0%,transparent 70%);pointer-events:none}
+.header-top-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.header-left{flex:1}
+.header-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(232,168,124,.1);border:1px solid rgba(232,168,124,.25);border-radius:20px;padding:3px 11px;font-size:11px;font-family:var(--mono);color:var(--accent);letter-spacing:.05em;margin-bottom:8px}
+.header-badge span{width:6px;height:6px;background:var(--accent);border-radius:50%;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+header h1{font-size:21px;font-weight:600;color:var(--text);letter-spacing:-.02em;margin-bottom:4px}
+header h1 em{font-style:normal;color:var(--accent)}
+header p{color:var(--text2);font-size:12px;font-weight:300}
+.header-meta{display:flex;gap:14px;margin-top:9px;flex-wrap:wrap}
+.meta-pill{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3);font-family:var(--mono)}
+.meta-pill .dot{width:5px;height:5px;border-radius:50%}
+.dot-green{background:var(--accent3)}.dot-peach{background:var(--accent)}.dot-coral{background:var(--accent2)}.dot-gold{background:var(--highlight)}
+
+/* ── RESTART BUTTON — top-right of header ── */
+.restart-btn{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(232,133,106,.13);border:1px solid rgba(232,133,106,.4);
+  border-radius:9px;color:var(--red-soft);font-family:var(--mono);font-size:11px;
+  padding:8px 15px;cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0;
+}
+.restart-btn:hover{background:rgba(232,133,106,.24);border-color:var(--red-soft);color:#f5a090}
+.restart-btn svg{flex-shrink:0}
+
+/* ── INSTRUCTION BAR ── */
+.instruction-bar{background:rgba(240,192,96,.06);border-bottom:1px solid rgba(240,192,96,.14);padding:8px 32px;font-size:11px;color:var(--highlight);display:flex;align-items:center;gap:8px;font-family:var(--mono);flex-wrap:wrap}
+
+/* ── MAIN LAYOUT — 3 columns: left | code | preview ── */
+.layout{display:grid;grid-template-columns:320px 1fr 360px;height:calc(100vh - 122px);min-height:600px}
+
+/* ── LEFT PANEL ── */
+.left-panel{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:14px 0}
+.left-panel::-webkit-scrollbar{width:4px}.left-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.section-label{font-size:9px;font-family:var(--mono);letter-spacing:.12em;color:var(--text3);text-transform:uppercase;padding:0 18px;margin-bottom:7px;margin-top:4px}
+.step-item{display:flex;gap:11px;padding:9px 18px;cursor:pointer;border-left:2px solid transparent;transition:all .18s ease}
+.step-item:hover,.step-item.active{background:var(--step-active);border-left-color:var(--step-border-active)}
+.step-item:hover .step-title,.step-item.active .step-title{color:var(--text)}
+.step-num{flex-shrink:0;width:24px;height:24px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text3);transition:all .18s}
+.step-item:hover .step-num,.step-item.active .step-num{background:var(--accent);border-color:var(--accent);color:#2b2118}
+.step-content{flex:1;min-width:0}
+.step-title{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:1px;transition:color .18s}
+.step-desc{font-size:10px;color:var(--text3);line-height:1.45}
+.step-tag{display:inline-flex;align-items:center;margin-top:3px;font-size:9px;font-family:var(--mono);background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 6px;color:var(--text3);transition:all .18s}
+.step-item:hover .step-tag,.step-item.active .step-tag{background:rgba(232,168,124,.1);border-color:rgba(232,168,124,.3);color:var(--accent)}
+.divider{height:1px;background:var(--border);margin:7px 18px}
+.custom-item{display:flex;gap:11px;padding:8px 18px;cursor:pointer;border-left:2px solid transparent;transition:all .18s ease}
+.custom-item:hover,.custom-item.active{background:rgba(212,133,106,.1);border-left-color:var(--accent2)}
+.custom-num{flex-shrink:0;width:24px;height:24px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .18s}
+.custom-item:hover .custom-num,.custom-item.active .custom-num{background:rgba(212,133,106,.18);border-color:var(--accent2)}
+.custom-content{flex:1}
+.custom-title{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:1px;transition:color .18s}
+.custom-item:hover .custom-title,.custom-item.active .custom-title{color:var(--text)}
+.custom-desc{font-size:10px;color:var(--text3)}
+
+/* ── CODE PANEL (center) ── */
+.code-panel{background:var(--code-bg);display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
+.code-header{background:#2b2118;border-bottom:1px solid var(--border);padding:9px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.code-header-left{display:flex;align-items:center;gap:9px}
+.dot-row{display:flex;gap:5px}
+.dot-row span{width:9px;height:9px;border-radius:50%;display:block}
+.d-red{background:#e8856a}.d-yellow{background:#e8c06a}.d-green{background:#7ec8a0}
+.code-filename{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.rev-tag{font-family:var(--mono);font-size:10px;background:rgba(232,168,124,.1);border:1px solid rgba(232,168,124,.25);border-radius:4px;padding:1px 6px;color:var(--accent)}
+.hover-hint{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.code-scroll{flex:1;overflow-y:auto}
+.code-scroll::-webkit-scrollbar{width:4px}.code-scroll::-webkit-scrollbar-thumb{background:#3a2e24;border-radius:2px}
+.code-wrap{padding:12px 0;font-family:var(--mono);font-size:11.5px;line-height:1.75}
+.code-line{display:flex;padding:0 18px 0 0}
+.line-num{flex-shrink:0;width:38px;text-align:right;padding-right:12px;color:var(--text3);font-size:10px;user-select:none;opacity:.35}
+.line-content{flex:1;white-space:pre;padding-right:18px}
+.code-section{transition:background .18s;position:relative}
+.code-section.highlighted{background:var(--code-highlight)}
+.code-section.highlighted::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--code-highlight-border);border-radius:0 2px 2px 0}
+/* Syntax */
+.kw{color:#d4a0c8}.fn{color:#e8c88a}.str{color:#b8d88a}.cmt{color:#6a5a4a;font-style:italic}.num{color:#e8a878}.var{color:#f0e0d0}.op{color:#a0d0c8}.sec{color:#f0c060;font-weight:700}
+/* Editable token colours */
+.editable-val{background:rgba(240,192,96,.11);border-bottom:1px dashed rgba(240,192,96,.55);border-radius:2px;padding:0 2px;cursor:pointer;transition:background .14s;outline:none;min-width:4px;display:inline-block}
+.editable-val:hover{background:rgba(240,192,96,.22)}
+.module-name-val{background:rgba(232,133,106,.14);border-bottom:1px dashed rgba(232,133,106,.55);border-radius:2px;padding:0 3px;cursor:pointer;transition:background .14s;outline:none;display:inline-block;color:#f0b090}
+.module-name-val:hover{background:rgba(232,133,106,.26)}
+.suffix-val{background:rgba(126,200,160,.13);border-bottom:1px dashed rgba(126,200,160,.5);border-radius:2px;padding:0 2px;cursor:pointer;transition:background .14s;outline:none;display:inline-block;color:#90d8b8}
+.suffix-val:hover{background:rgba(126,200,160,.24)}
+
+/* ── COPY BAR ── */
+.copy-bar{background:var(--bg2);border-top:1px solid var(--border);padding:9px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:10px}
+.copy-info{font-size:10px;color:var(--text3);font-family:var(--mono);flex:1}
+.copy-btn{display:flex;align-items:center;gap:6px;background:var(--accent);border:1px solid var(--accent);border-radius:7px;color:#2b2118;padding:8px 15px;font-size:11px;cursor:pointer;font-family:var(--mono);font-weight:700;transition:all .15s;white-space:nowrap}
+.copy-btn:hover{background:#d49060;border-color:#d49060}
+.copy-btn.copied{background:rgba(126,200,160,.15);border-color:var(--accent3);color:var(--accent3)}
+
+/* ── PREVIEW PANEL (right) ── */
+.preview-panel{background:#1a241a;display:flex;flex-direction:column;overflow:hidden}
+.preview-header{background:#152015;border-bottom:1px solid rgba(126,200,160,.18);padding:9px 16px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ph-dot{width:8px;height:8px;background:var(--accent3);border-radius:50%;animation:pulse 2s infinite}
+.ph-title{font-family:var(--mono);font-size:11px;color:var(--accent3);letter-spacing:.04em}
+.ph-sub{font-family:var(--mono);font-size:10px;color:rgba(126,200,160,.4);margin-left:auto}
+.preview-scroll{flex:1;overflow-y:auto;padding:10px 12px 16px}
+.preview-scroll::-webkit-scrollbar{width:4px}.preview-scroll::-webkit-scrollbar-thumb{background:rgba(126,200,160,.15);border-radius:2px}
+
+/* Outlook mockup */
+.outlook-window{background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.ol-toolbar{background:#1f4e79;padding:6px 10px;display:flex;align-items:center;gap:6px}
+.ol-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:3px;color:#fff;font-size:9px;font-family:var(--sans);padding:2px 8px;cursor:default;white-space:nowrap}
+.ol-btn.send{background:#2E75B6;border-color:#3a8ccc}
+.ol-field{background:#f3f2f1;border-bottom:1px solid #ddd;padding:5px 10px;display:flex;gap:6px;align-items:flex-start}
+.ol-lbl{font-size:10px;color:#555;font-family:var(--sans);min-width:50px;padding-top:1px;flex-shrink:0}
+.ol-to-pill{background:#2E75B6;color:#fff;font-size:10px;border-radius:12px;padding:1px 9px;font-family:var(--sans)}
+.ol-subj-val{font-size:12px;font-weight:600;color:#1f4e79;font-family:'Calibri',sans-serif;word-break:break-word}
+.ol-body{background:#fff;padding:14px 16px;font-family:'Calibri',sans-serif;font-size:12px;color:#1a1a1a;line-height:1.75;min-height:220px}
+.ol-body p{margin:0}
+.ol-para{margin-bottom:8px}
+.ol-bold{font-weight:700}
+.ol-field-row{display:flex;margin-bottom:3px}
+.ol-fl{font-weight:700;min-width:0;white-space:nowrap}
+.ol-fsep{margin:0 4px}
+.ol-ag-title{margin-top:10px;margin-bottom:3px;font-weight:500}
+.ol-ag-hr{border:none;border-top:1px solid #bbb;margin:2px 0 6px;width:170px}
+.ol-ag-item{margin-bottom:2px}
+.ol-closer{margin-top:10px}
+.ol-signoff{margin-top:6px}
+.ol-sender{font-weight:600}
+
+/* flash animation on preview elements */
+@keyframes previewFlash{0%{background:rgba(126,200,160,.3)}100%{background:transparent}}
+.flash{animation:previewFlash .65s ease-out}
+.preview-hint{text-align:center;font-size:10px;color:rgba(126,200,160,.3);font-family:var(--mono);margin-top:8px}
+
+/* ── MODALS ── */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.58);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:440px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.modal-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.modal-subtitle{font-size:11px;color:var(--text3);margin-bottom:16px;font-family:var(--mono)}
+.modal-label{font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.modal-input{width:100%;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .15s;margin-bottom:14px}
+.modal-input:focus{border-color:var(--accent)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.btn-cancel{background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--text2);padding:7px 16px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn-cancel:hover{border-color:var(--text2);color:var(--text)}
+.btn-apply{background:var(--accent);border:1px solid var(--accent);border-radius:7px;color:#2b2118;padding:7px 16px;font-size:13px;cursor:pointer;font-family:var(--sans);font-weight:600;transition:all .15s}
+.btn-apply:hover{background:#d49060}
+/* Restart modal */
+.restart-box{background:var(--bg2);border:1px solid rgba(232,133,106,.4);border-radius:12px;padding:26px;width:360px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,.55);text-align:center}
+.restart-icon{width:42px;height:42px;background:rgba(232,133,106,.12);border:1px solid rgba(232,133,106,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:21px}
+.restart-box h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:7px}
+.restart-box p{font-size:11px;color:var(--text3);margin-bottom:20px;line-height:1.6}
+.restart-actions{display:flex;gap:10px;justify-content:center}
+.btn-no{background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--text2);padding:7px 20px;font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn-no:hover{border-color:var(--text2);color:var(--text)}
+.btn-rst{background:var(--red-soft);border:1px solid var(--red-soft);border-radius:7px;color:#2b2118;padding:7px 20px;font-size:12px;cursor:pointer;font-family:var(--sans);font-weight:600;transition:all .15s}
+.btn-rst:hover{background:#d4705a}
 </style>
 </head>
 <body>
 
+<!-- ══ HEADER ══ -->
 <header>
   <div class="header-top-row">
     <div class="header-left">
       <div class="header-badge"><span></span> VBA Macro — Outlook 2016 / 2019 / 2021 / M365</div>
       <h1>Meeting Appointment <em>Macro</em> — Setup Guide</h1>
-      <p>Hover steps → highlight code &nbsp;|&nbsp; Click <span style="color:var(--highlight)">yellow</span> / <span style="color:#f0b090">orange</span> values to edit &nbsp;|&nbsp; <strong style="color:var(--accent)">Copy Full VBA Code</strong> → paste straight into Outlook VBA &nbsp;<span style="color:var(--text3);font-family:var(--mono);font-size:11px">Rev.1</span></p>
+      <p>Hover steps → code highlights &nbsp;|&nbsp; Click <span style="color:var(--highlight)">yellow</span> / <span style="color:#f0b090">orange</span> / <span style="color:#90d8b8">green</span> values to edit &nbsp;|&nbsp; Preview updates live &nbsp;|&nbsp; <strong style="color:var(--accent)">Copy Full VBA Code</strong> → paste to Outlook &nbsp;<span style="color:var(--text3);font-family:var(--mono);font-size:10px">Rev.2</span></p>
       <div class="header-meta">
         <div class="meta-pill"><span class="dot dot-peach"></span> 7 input steps</div>
-        <div class="meta-pill"><span class="dot dot-green"></span> Bold date &amp; time labels</div>
-        <div class="meta-pill"><span class="dot dot-coral"></span> Teams link auto-detect</div>
-        <div class="meta-pill"><span class="dot dot-gold"></span> Your edits baked into copy</div>
+        <div class="meta-pill"><span class="dot dot-green"></span> Bold date &amp; time</div>
+        <div class="meta-pill"><span class="dot dot-coral"></span> Teams link auto</div>
+        <div class="meta-pill"><span class="dot dot-gold"></span> Live Outlook preview</div>
       </div>
     </div>
-    <button class="restart-btn" onclick="openRestart()">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.5 2.5A7 7 0 1 0 14 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14 2.5V6h-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <!-- RESTART BUTTON — always visible top-right -->
+    <button class="restart-btn" id="restartTrigger" onclick="openRestart()">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M13.5 2.5A7 7 0 1 0 14 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14 2.5V6h-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Reset &amp; start fresh
     </button>
   </div>
 </header>
 
+<!-- ══ INSTRUCTION BAR ══ -->
 <div class="instruction-bar">
-  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#f0c060" stroke-width="1.5"/><path d="M8 7v5M8 5v1" stroke="#f0c060" stroke-width="1.5" stroke-linecap="round"/></svg>
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#f0c060" stroke-width="1.5"/><path d="M8 7v5M8 5v1" stroke="#f0c060" stroke-width="1.5" stroke-linecap="round"/></svg>
   Hover step → highlights code &nbsp;|&nbsp;
-  <span style="background:rgba(240,192,96,.12);border:1px dashed rgba(240,192,96,.4);border-radius:3px;padding:0 5px">yellow</span> = editable defaults &nbsp;|&nbsp;
-  <span style="color:#f0b090;background:rgba(232,133,106,.12);border:1px dashed rgba(232,133,106,.4);border-radius:3px;padding:0 5px">orange</span> = module/sub names &nbsp;|&nbsp;
-  <strong style="color:var(--accent)">Copy Full VBA Code</strong> → complete ready-to-paste macro with your edits
+  <span style="background:rgba(240,192,96,.12);border:1px dashed rgba(240,192,96,.4);border-radius:3px;padding:0 4px">yellow</span> default values &nbsp;
+  <span style="color:#f0b090;background:rgba(232,133,106,.12);border:1px dashed rgba(232,133,106,.4);border-radius:3px;padding:0 4px">orange</span> module/sub names &nbsp;
+  <span style="color:#90d8b8;background:rgba(126,200,160,.12);border:1px dashed rgba(126,200,160,.4);border-radius:3px;padding:0 4px">green</span> fixed suffix text &nbsp;|&nbsp;
+  <strong style="color:var(--accent)">Preview</strong> updates on every edit
 </div>
 
 <div class="layout">
-  <div class="left-panel">
-    <div class="section-label">Installation</div>
-    <div class="step-item" data-target="sec-install">
-      <div class="step-num">①</div>
-      <div class="step-content"><div class="step-title">Open VBA Editor</div><div class="step-desc">Press <strong>Alt+F11</strong> in Outlook</div><div class="step-tag">Alt + F11</div></div>
-    </div>
-    <div class="step-item" data-target="sec-module">
-      <div class="step-num">②</div>
-      <div class="step-content"><div class="step-title">Create Module &amp; Name It</div><div class="step-desc">Insert → Module. Press <strong>F4</strong> to rename in Properties panel</div><div class="step-tag">Insert → Module → F4</div></div>
-    </div>
-    <div class="step-item" data-target="sec-ribbon">
-      <div class="step-num">③</div>
-      <div class="step-content"><div class="step-title">Add Ribbon Button</div><div class="step-desc">Right-click ribbon → Customize → Macros → find Sub → Add to group</div><div class="step-tag">Customize Ribbon</div></div>
-    </div>
-    <div class="divider"></div>
-    <div class="section-label">Input Steps (run order)</div>
-    <div class="step-item" data-target="sec-step1"><div class="step-num">1</div><div class="step-content"><div class="step-title">Meeting Title</div><div class="step-desc">Subject line in calendar. Team name appended automatically after " — "</div><div class="step-tag">Step 1 - Title</div></div></div>
-    <div class="step-item" data-target="sec-step2"><div class="step-num">2</div><div class="step-content"><div class="step-title">Recipient Team</div><div class="step-desc">"Dear ___ Team," greeting. Type name only — do not include "Team"</div><div class="step-tag">Step 2 - Recipient</div></div></div>
-    <div class="step-item" data-target="sec-step3"><div class="step-num">3</div><div class="step-content"><div class="step-title">Short Description</div><div class="step-desc">Brief purpose phrase after "I would like to appoint for meeting of …"</div><div class="step-tag">Step 3 - Description</div></div></div>
-    <div class="step-item" data-target="sec-step4"><div class="step-num">4</div><div class="step-content"><div class="step-title">Meeting Date</div><div class="step-desc">Any format: "7 April 2026", "07/04/2026", "2026-04-07". Always English output</div><div class="step-tag">Step 4 - Date</div></div></div>
-    <div class="step-item" data-target="sec-step5"><div class="step-num">5</div><div class="step-content"><div class="step-title">Start &amp; End Time</div><div class="step-desc">No AM/PM → 24hr. With AM/PM → 12hr. End format matches start</div><div class="step-tag">Step 5 - Time</div></div></div>
-    <div class="step-item" data-target="sec-step6"><div class="step-num">6</div><div class="step-content"><div class="step-title">Location</div><div class="step-desc">"teams" in text → auto-tries Teams join link via COM add-in</div><div class="step-tag">Step 6 - Location</div></div></div>
-    <div class="step-item" data-target="sec-step7"><div class="step-num">7</div><div class="step-content"><div class="step-title">Agenda Items (1–5)</div><div class="step-desc">Leave any blank to skip. Numbers always sequential — no gaps</div><div class="step-tag">Step 7 - Agendas</div></div></div>
-    <div class="divider"></div>
-    <div class="section-label">Customise</div>
-    <div class="custom-item" data-target="sec-modname"><div class="custom-num">🏷</div><div class="custom-content"><div class="custom-title">Module &amp; Sub Name</div><div class="custom-desc">Name shown in ribbon macro picker</div></div></div>
-    <div class="custom-item" data-target="sec-signoff"><div class="custom-num">✍</div><div class="custom-content"><div class="custom-title">Name &amp; Sign-off</div><div class="custom-desc">Sender name, prefix (Eng./Dr.), suffix (PE/PMP), closing word</div></div></div>
-    <div class="custom-item" data-target="sec-body"><div class="custom-num">📝</div><div class="custom-content"><div class="custom-title">Body Text</div><div class="custom-desc">Greeting prefix, opening sentence, closing sentence</div></div></div>
-  </div>
 
-  <div class="right-panel">
-    <div class="code-header">
-      <div class="code-header-left">
-        <div class="dot-row"><span class="d-red"></span><span class="d-yellow"></span><span class="d-green"></span></div>
-        <div class="code-filename">CreateMeetingFromTemplate.bas</div>
-        <div class="rev-tag">Rev.1</div>
-      </div>
-      <div class="hover-hint">hover step → highlight &nbsp;✎ click yellow/orange to edit</div>
+<!-- ══════ LEFT PANEL ══════ -->
+<div class="left-panel">
+  <div class="section-label">Installation</div>
+  <div class="step-item" data-target="sec-install"><div class="step-num">①</div><div class="step-content"><div class="step-title">Open VBA Editor</div><div class="step-desc">Alt+F11 in Outlook</div><div class="step-tag">Alt + F11</div></div></div>
+  <div class="step-item" data-target="sec-module"><div class="step-num">②</div><div class="step-content"><div class="step-title">Create Module &amp; Name It</div><div class="step-desc">Insert → Module. F4 to rename in Properties</div><div class="step-tag">Insert → Module → F4</div></div></div>
+  <div class="step-item" data-target="sec-ribbon"><div class="step-num">③</div><div class="step-content"><div class="step-title">Add Ribbon Button</div><div class="step-desc">Right-click ribbon → Customize → Macros → find Sub → Add</div><div class="step-tag">Customize Ribbon</div></div></div>
+  <div class="divider"></div>
+  <div class="section-label">Input Steps</div>
+  <div class="step-item" data-target="sec-step1"><div class="step-num">1</div><div class="step-content"><div class="step-title">Meeting Title</div><div class="step-desc">Subject line. Team appended after " — "</div><div class="step-tag">Step 1</div></div></div>
+  <div class="step-item" data-target="sec-step2"><div class="step-num">2</div><div class="step-content"><div class="step-title">Recipient Team</div><div class="step-desc">"Dear ___ [suffix]," greeting</div><div class="step-tag">Step 2</div></div></div>
+  <div class="step-item" data-target="sec-step3"><div class="step-num">3</div><div class="step-content"><div class="step-title">Short Description</div><div class="step-desc">Purpose phrase after "meeting of …"</div><div class="step-tag">Step 3</div></div></div>
+  <div class="step-item" data-target="sec-step4"><div class="step-num">4</div><div class="step-content"><div class="step-title">Meeting Date</div><div class="step-desc">Any format → always English output</div><div class="step-tag">Step 4</div></div></div>
+  <div class="step-item" data-target="sec-step5"><div class="step-num">5</div><div class="step-content"><div class="step-title">Start &amp; End Time</div><div class="step-desc">No AM/PM → 24hr. With AM/PM → 12hr</div><div class="step-tag">Step 5</div></div></div>
+  <div class="step-item" data-target="sec-step6"><div class="step-num">6</div><div class="step-content"><div class="step-title">Location</div><div class="step-desc">"teams" → auto Teams join link</div><div class="step-tag">Step 6</div></div></div>
+  <div class="step-item" data-target="sec-step7"><div class="step-num">7</div><div class="step-content"><div class="step-title">Agenda Items (1–5)</div><div class="step-desc">Leave blank to skip. Numbers auto-sequential</div><div class="step-tag">Step 7</div></div></div>
+  <div class="divider"></div>
+  <div class="section-label">Customise</div>
+  <div class="custom-item" data-target="sec-modname"><div class="custom-num">🏷</div><div class="custom-content"><div class="custom-title">Module &amp; Sub Name</div><div class="custom-desc">Name shown in ribbon picker</div></div></div>
+  <div class="custom-item" data-target="sec-signoff"><div class="custom-num">✍</div><div class="custom-content"><div class="custom-title">Name &amp; Sign-off</div><div class="custom-desc">Sender name, prefix/suffix, closing word</div></div></div>
+  <div class="custom-item" data-target="sec-body"><div class="custom-num">📝</div><div class="custom-content"><div class="custom-title">Body Text</div><div class="custom-desc">Greeting, opening, closing sentences</div></div></div>
+</div>
+
+<!-- ══════ CODE PANEL ══════ -->
+<div class="code-panel">
+  <div class="code-header">
+    <div class="code-header-left">
+      <div class="dot-row"><span class="d-red"></span><span class="d-yellow"></span><span class="d-green"></span></div>
+      <div class="code-filename">CreateMeetingFromTemplate.bas</div>
+      <div class="rev-tag">Rev.2</div>
     </div>
-    <div class="code-scroll"><div class="code-wrap">
+    <div class="hover-hint">hover → highlight &nbsp;✎ click token to edit</div>
+  </div>
+  <div class="code-scroll"><div class="code-wrap">
 
 <div class="code-section" id="sec-install">
-<div class="code-line"><span class="line-num">1</span><span class="line-content"><span class="cmt">' ============================================================</span></span></div>
-<div class="code-line"><span class="line-num">2</span><span class="line-content"><span class="cmt">'  INSTALLATION</span></span></div>
-<div class="code-line"><span class="line-num">3</span><span class="line-content"><span class="cmt">'  1. Alt+F11 in Outlook → VBA Editor opens</span></span></div>
-<div class="code-line"><span class="line-num">4</span><span class="line-content"><span class="cmt">'  2. Insert → Module → paste ALL code → Ctrl+S</span></span></div>
-<div class="code-line"><span class="line-num">5</span><span class="line-content"><span class="cmt">'  3. Enable macros if prompted</span></span></div>
-<div class="code-line"><span class="line-num">6</span><span class="line-content"><span class="cmt">' ============================================================</span></span></div>
+<div class="code-line"><span class="line-num">1</span><span class="line-content"><span class="cmt">' ===========================================================</span></span></div>
+<div class="code-line"><span class="line-num">2</span><span class="line-content"><span class="cmt">'  INSTALLATION: Alt+F11 → Insert → Module → paste ALL → Ctrl+S</span></span></div>
+<div class="code-line"><span class="line-num">3</span><span class="line-content"><span class="cmt">'  Enable macros if prompted. All helpers must stay in same module.</span></span></div>
+<div class="code-line"><span class="line-num">4</span><span class="line-content"><span class="cmt">' ===========================================================</span></span></div>
 </div>
 
 <div class="code-section" id="sec-module">
-<div class="code-line"><span class="line-num">7</span><span class="line-content"><span class="cmt">'  ⚠  ALL code must stay in ONE single module (no splitting)</span></span></div>
-<div class="code-line"><span class="line-num">8</span><span class="line-content"><span class="cmt">'  Rename module in F4 Properties panel (default: "Module1")</span></span></div>
-<div class="code-line"><span class="line-num">9</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">5</span><span class="line-content"><span class="cmt">'  ⚠  ALL code must stay in ONE single module (no splitting)</span></span></div>
+<div class="code-line"><span class="line-num">6</span><span class="line-content"><span class="cmt">'  Rename module via F4 Properties panel (default name: "Module1")</span></span></div>
+<div class="code-line"><span class="line-num">7</span><span class="line-content"></span></div>
 </div>
 
 <div class="code-section" id="sec-modname">
-<div class="code-line"><span class="line-num">10</span><span class="line-content"><span class="cmt">' ── MODULE & SUB NAME ────────────────────────────────────</span></span></div>
-<div class="code-line"><span class="line-num">11</span><span class="line-content"><span class="cmt">'  Ribbon picker shows:  [ModuleName].[SubName]</span></span></div>
-<div class="code-line"><span class="line-num">12</span><span class="line-content"><span class="cmt">'  Module (Name) in F4:  <span class="module-name-val" contenteditable="true" data-field="moduleName" data-label="Module Name (set in F4 Properties panel)">MeetingMacros</span></span></span></div>
-<div class="code-line"><span class="line-num">13</span><span class="line-content"><span class="cmt">'  Ribbon will show:  <span class="module-name-val" contenteditable="true" data-field="moduleName2" data-label="Module Name in ribbon">MeetingMacros</span>.<span class="module-name-val" contenteditable="true" data-field="subName2" data-label="Sub Name in ribbon">CreateMeetingFromTemplate</span></span></span></div>
-<div class="code-line"><span class="line-num">14</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">8</span><span class="line-content"><span class="cmt">' ── MODULE &amp; SUB NAME ──────────────────────────────────</span></span></div>
+<div class="code-line"><span class="line-num">9</span><span class="line-content"><span class="cmt">'  Ribbon picker shows: [ModuleName].[SubName]</span></span></div>
+<div class="code-line"><span class="line-num">10</span><span class="line-content"><span class="cmt">'  Module (Name) in F4:  <span class="module-name-val" contenteditable="true" data-field="moduleName" data-label="Module Name (set in F4 Properties panel)">MeetingMacros</span></span></span></div>
+<div class="code-line"><span class="line-num">11</span><span class="line-content"><span class="cmt">'  Ribbon will show:  <span class="module-name-val" contenteditable="true" data-field="moduleName2" data-label="Module Name in ribbon">MeetingMacros</span>.<span class="module-name-val" contenteditable="true" data-field="subName2" data-label="Sub Name in ribbon">CreateMeetingFromTemplate</span></span></span></div>
+<div class="code-line"><span class="line-num">12</span><span class="line-content"></span></div>
 </div>
 
 <div class="code-section" id="sec-ribbon">
-<div class="code-line"><span class="line-num">15</span><span class="line-content"><span class="cmt">'  Ribbon: Right-click ribbon → Customize → Macros</span></span></div>
-<div class="code-line"><span class="line-num">16</span><span class="line-content"><span class="cmt">'  Find Sub → Add >> → Rename → choose icon → OK</span></span></div>
-<div class="code-line"><span class="line-num">17</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">13</span><span class="line-content"><span class="cmt">'  Ribbon: Right-click → Customize → Macros → find Sub → Add >></span></span></div>
+<div class="code-line"><span class="line-num">14</span><span class="line-content"></span></div>
 </div>
 
 <div class="code-section">
-<div class="code-line"><span class="line-num">18</span><span class="line-content"><span class="cmt">' ============= HELPER FUNCTIONS (same module as Sub) ========</span></span></div>
-<div class="code-line"><span class="line-num">19</span><span class="line-content"><span class="kw">Function </span><span class="fn">ParseDate</span>(<span class="var">s</span> <span class="kw">As String</span>) <span class="kw">As Date</span>  <span class="cmt">' multi-format date parser</span></span></div>
-<div class="code-line"><span class="line-num">20</span><span class="line-content"><span class="kw">End Function</span></span></div>
-<div class="code-line"><span class="line-num">21</span><span class="line-content"><span class="kw">Function </span><span class="fn">ParseTime</span>(<span class="var">s</span> <span class="kw">As String</span>, <span class="kw">ByRef</span> <span class="var">use24hr</span> <span class="kw">As Boolean</span>) <span class="kw">As Date</span></span></div>
-<div class="code-line"><span class="line-num">22</span><span class="line-content"><span class="kw">End Function</span>  <span class="cmt">' no AM/PM in input = 24hr output</span></span></div>
-<div class="code-line"><span class="line-num">23</span><span class="line-content"><span class="kw">Function </span><span class="fn">FormatDateEnglish</span>(<span class="var">d</span> <span class="kw">As Date</span>) <span class="kw">As String</span>  <span class="cmt">' bypasses Windows locale</span></span></div>
-<div class="code-line"><span class="line-num">24</span><span class="line-content"><span class="kw">End Function</span></span></div>
-<div class="code-line"><span class="line-num">25</span><span class="line-content"><span class="kw">Function </span><span class="fn">FormatTimeDisplay</span>(<span class="var">t</span> <span class="kw">As Date</span>, <span class="var">use24hr</span> <span class="kw">As Boolean</span>) <span class="kw">As String</span></span></div>
-<div class="code-line"><span class="line-num">26</span><span class="line-content"><span class="kw">End Function</span></span></div>
+<div class="code-line"><span class="line-num">15</span><span class="line-content"><span class="cmt">' ===== HELPER FUNCTIONS (same module as main Sub) ========</span></span></div>
+<div class="code-line"><span class="line-num">16</span><span class="line-content"><span class="kw">Function </span><span class="fn">ParseDate</span>(<span class="var">s</span> <span class="kw">As String</span>) <span class="kw">As Date</span>  <span class="cmt">' multi-format date parser</span></span></div>
+<div class="code-line"><span class="line-num">17</span><span class="line-content"><span class="kw">End Function</span></span></div>
+<div class="code-line"><span class="line-num">18</span><span class="line-content"><span class="kw">Function </span><span class="fn">ParseTime</span>(<span class="var">s</span> <span class="kw">As String</span>, <span class="kw">ByRef</span> <span class="var">use24hr</span> <span class="kw">As Boolean</span>) <span class="kw">As Date</span>  <span class="cmt">' no AM/PM = 24hr</span></span></div>
+<div class="code-line"><span class="line-num">19</span><span class="line-content"><span class="kw">End Function</span></span></div>
+<div class="code-line"><span class="line-num">20</span><span class="line-content"><span class="kw">Function </span><span class="fn">FormatDateEnglish</span>(<span class="var">d</span> <span class="kw">As Date</span>) <span class="kw">As String</span>  <span class="cmt">' bypasses Windows locale</span></span></div>
+<div class="code-line"><span class="line-num">21</span><span class="line-content"><span class="kw">End Function</span></span></div>
+<div class="code-line"><span class="line-num">22</span><span class="line-content"><span class="kw">Function </span><span class="fn">FormatTimeDisplay</span>(<span class="var">t</span> <span class="kw">As Date</span>, <span class="var">use24hr</span> <span class="kw">As Boolean</span>) <span class="kw">As String</span></span></div>
+<div class="code-line"><span class="line-num">23</span><span class="line-content"><span class="kw">End Function</span></span></div>
+<div class="code-line"><span class="line-num">24</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">25</span><span class="line-content"><span class="cmt">' ====================== MAIN MACRO =======================</span></span></div>
+<div class="code-line"><span class="line-num">26</span><span class="line-content"><span class="kw">Sub </span><span class="module-name-val" contenteditable="true" data-field="subName" data-label="Sub / Macro Name (shown in ribbon picker)">CreateMeetingFromTemplate</span>()</span></div>
 <div class="code-line"><span class="line-num">27</span><span class="line-content"></span></div>
-<div class="code-line"><span class="line-num">28</span><span class="line-content"><span class="cmt">' ====================== MAIN MACRO ==========================</span></span></div>
-<div class="code-line"><span class="line-num">29</span><span class="line-content"><span class="kw">Sub </span><span class="module-name-val" contenteditable="true" data-field="subName" data-label="Sub / Macro Name (shown in ribbon picker)">CreateMeetingFromTemplate</span>()</span></div>
-<div class="code-line"><span class="line-num">30</span><span class="line-content"></span></div>
 </div>
 
 <div class="code-section" id="sec-step1">
-<div class="code-line"><span class="line-num">31</span><span class="line-content">  <span class="sec">' === STEP 1: TITLE ===</span></span></div>
-<div class="code-line"><span class="line-num">32</span><span class="line-content">  <span class="var">subject</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Meeting Title:"</span>, <span class="str">"Step 1 - Title"</span>,</span></div>
-<div class="code-line"><span class="line-num">33</span><span class="line-content">             <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultTitle" data-label="Default Title Text">Project Discussion</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">28</span><span class="line-content">  <span class="sec">' === STEP 1: TITLE ===</span></span></div>
+<div class="code-line"><span class="line-num">29</span><span class="line-content">  <span class="var">subject</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Meeting Title:"</span>, <span class="str">"Step 1 - Title"</span>, <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultTitle" data-label="Default Title Text">Project Discussion</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">30</span><span class="line-content">  <span class="cmt">'  Subject line = Title — Team[suffix]  (auto-appended)</span></span></div>
 </div>
 
 <div class="code-section" id="sec-step2">
-<div class="code-line"><span class="line-num">34</span><span class="line-content">  <span class="sec">' === STEP 2: RECIPIENT TEAM ===</span></span></div>
-<div class="code-line"><span class="line-num">35</span><span class="line-content">  <span class="var">recipientTeam</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Recipient Team:"</span>, <span class="str">"Step 2 - Recipient"</span>,</span></div>
-<div class="code-line"><span class="line-num">36</span><span class="line-content">             <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultTeam" data-label="Default Team Name">xxxx</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">31</span><span class="line-content">  <span class="sec">' === STEP 2: RECIPIENT TEAM ===</span></span></div>
+<div class="code-line"><span class="line-num">32</span><span class="line-content">  <span class="var">recipientTeam</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Recipient Team:"</span>, <span class="str">"Step 2"</span>, <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultTeam" data-label="Default Team Name">xxxx</span>"</span>)</span></div>
 </div>
 
 <div class="code-section" id="sec-step3">
-<div class="code-line"><span class="line-num">37</span><span class="line-content">  <span class="sec">' === STEP 3: SHORT DESCRIPTION ===</span></span></div>
-<div class="code-line"><span class="line-num">38</span><span class="line-content">  <span class="var">description</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Short description:"</span>, <span class="str">"Step 3 - Description"</span>,</span></div>
-<div class="code-line"><span class="line-num">39</span><span class="line-content">             <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultDesc" data-label="Default Description Placeholder">Monthly Progress Review</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">33</span><span class="line-content">  <span class="sec">' === STEP 3: SHORT DESCRIPTION ===</span></span></div>
+<div class="code-line"><span class="line-num">34</span><span class="line-content">  <span class="var">description</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Short description:"</span>, <span class="str">"Step 3"</span>, <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultDesc" data-label="Default Description Placeholder">Monthly Progress Review</span>"</span>)</span></div>
 </div>
 
 <div class="code-section" id="sec-step4">
-<div class="code-line"><span class="line-num">40</span><span class="line-content">  <span class="sec">' === STEP 4: DATE ===</span></span></div>
-<div class="code-line"><span class="line-num">41</span><span class="line-content">  <span class="cmt">'  ✅ "7 April 2026" / "07/04/2026" / "2026-04-07" / "April 7, 2026"</span></span></div>
-<div class="code-line"><span class="line-num">42</span><span class="line-content">  <span class="cmt">'  Wrong format → re-prompt (no crash). Default = tomorrow.</span></span></div>
+<div class="code-line"><span class="line-num">35</span><span class="line-content">  <span class="sec">' === STEP 4: DATE ===</span></span></div>
+<div class="code-line"><span class="line-num">36</span><span class="line-content">  <span class="cmt">'  "7 April 2026" / "07/04/2026" / "2026-04-07" / "April 7, 2026"</span></span></div>
+<div class="code-line"><span class="line-num">37</span><span class="line-content">  <span class="cmt">'  Wrong format → re-prompt (no crash). Default = tomorrow.</span></span></div>
 </div>
 
 <div class="code-section" id="sec-step5">
-<div class="code-line"><span class="line-num">43</span><span class="line-content">  <span class="sec">' === STEP 5: START & END TIME ===</span></span></div>
-<div class="code-line"><span class="line-num">44</span><span class="line-content">  <span class="cmt">'  No AM/PM typed → output: 15:00  (24-hr)</span></span></div>
-<div class="code-line"><span class="line-num">45</span><span class="line-content">  <span class="cmt">'  With AM/PM typed → output: 03:00 PM  (12-hr)</span></span></div>
-<div class="code-line"><span class="line-num">46</span><span class="line-content">  <span class="cmt">'  0900 accepted (no colon). Start default: </span><span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultStart" data-label="Default Start Time">09:00</span>"</span>  <span class="cmt">End: </span><span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultEnd" data-label="Default End Time">10:00</span>"</span></span></div>
+<div class="code-line"><span class="line-num">38</span><span class="line-content">  <span class="sec">' === STEP 5: START &amp; END TIME ===</span></span></div>
+<div class="code-line"><span class="line-num">39</span><span class="line-content">  <span class="cmt">'  No AM/PM → 24hr out. &nbsp;With AM/PM → 12hr out. &nbsp;0900 accepted.</span></span></div>
+<div class="code-line"><span class="line-num">40</span><span class="line-content">  <span class="cmt">'  Start default: </span><span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultStart" data-label="Default Start Time">09:00</span>"</span>  <span class="cmt">End default: </span><span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultEnd" data-label="Default End Time">10:00</span>"</span></span></div>
 </div>
 
 <div class="code-section" id="sec-step6">
-<div class="code-line"><span class="line-num">47</span><span class="line-content">  <span class="sec">' === STEP 6: LOCATION ===</span></span></div>
-<div class="code-line"><span class="line-num">48</span><span class="line-content">  <span class="var">location</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Location:"</span>, <span class="str">"Step 6 - Location"</span>,</span></div>
-<div class="code-line"><span class="line-num">49</span><span class="line-content">             <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultLocation" data-label="Default Location">MS Teams</span>"</span>)</span></div>
-<div class="code-line"><span class="line-num">50</span><span class="line-content">  <span class="cmt">'  Contains "teams" → auto-tries Teams join link via COM add-in</span></span></div>
+<div class="code-line"><span class="line-num">41</span><span class="line-content">  <span class="sec">' === STEP 6: LOCATION ===</span></span></div>
+<div class="code-line"><span class="line-num">42</span><span class="line-content">  <span class="var">location</span> <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Location:"</span>, <span class="str">"Step 6"</span>, <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultLocation" data-label="Default Location">MS Teams</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">43</span><span class="line-content">  <span class="cmt">'  "teams" in text → auto-tries Teams join link via COM add-in</span></span></div>
 </div>
 
 <div class="code-section" id="sec-step7">
-<div class="code-line"><span class="line-num">51</span><span class="line-content">  <span class="sec">' === STEP 7: AGENDAS (1–5) ===</span></span></div>
-<div class="code-line"><span class="line-num">52</span><span class="line-content">  <span class="cmt">'  Leave blank to skip. Numbers auto-adjust — no gaps.</span></span></div>
-<div class="code-line"><span class="line-num">53</span><span class="line-content">  <span class="var">ag</span>(<span class="num">5</span>) <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Agenda 5:"</span>, <span class="str">"Step 7 [5/5]"</span>,</span></div>
-<div class="code-line"><span class="line-num">54</span><span class="line-content">             <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultAgenda5" data-label="Default Agenda Item 5">Action items for proceed</span>"</span>)</span></div>
+<div class="code-line"><span class="line-num">44</span><span class="line-content">  <span class="sec">' === STEP 7: AGENDAS (1–5) ===</span></span></div>
+<div class="code-line"><span class="line-num">45</span><span class="line-content">  <span class="cmt">'  Leave blank to skip. Numbers auto-adjust — no gaps.</span></span></div>
+<div class="code-line"><span class="line-num">46</span><span class="line-content">  <span class="var">ag</span>(<span class="num">5</span>) <span class="op">=</span> <span class="fn">InputBox</span>(<span class="str">"Agenda 5:"</span>, <span class="str">"Step 7 [5/5]"</span>, <span class="str">"<span class="editable-val" contenteditable="true" data-field="defaultAgenda5" data-label="Default Agenda Item 5">Action items for proceed</span>"</span>)</span></div>
 </div>
 
 <div class="code-section" id="sec-body">
-<div class="code-line"><span class="line-num">55</span><span class="line-content">  <span class="sec">' === WRITE BODY via WordEditor (bold supported) ===</span></span></div>
-<div class="code-line"><span class="line-num">56</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="greetingPrefix" data-label="Greeting Prefix (before team name)">Dear </span>"</span> <span class="op">&amp;</span> <span class="var">recipientTeam</span> <span class="op">&amp;</span> <span class="str">" Team,"</span></span></div>
-<div class="code-line"><span class="line-num">57</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="openingLine" data-label="Opening Sentence (before description)">I would like to appoint for meeting of </span>"</span> <span class="op">&amp;</span> <span class="var">description</span></span></div>
-<div class="code-line"><span class="line-num">58</span><span class="line-content">  <span class="cmt">'  Date / Time labels: oSel.Font.Bold = True/False</span></span></div>
+<div class="code-line"><span class="line-num">47</span><span class="line-content">  <span class="sec">' === WRITE BODY via WordEditor (bold Date &amp; Time labels) ===</span></span></div>
+<div class="code-line"><span class="line-num">48</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="greetingPrefix" data-label="Greeting prefix (before team name, e.g. Dear )">Dear </span>"</span> <span class="op">&amp;</span> <span class="var">recipientTeam</span> <span class="op">&amp;</span> <span class="str">"<span class="suffix-val" contenteditable="true" data-field="teamSuffix" data-label="Team suffix (after team name, e.g.  Team,)"> Team,</span>"</span></span></div>
+<div class="code-line"><span class="line-num">49</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="openingLine" data-label="Opening sentence (before description)">I would like to appoint for meeting of </span>"</span> <span class="op">&amp;</span> <span class="var">description</span></span></div>
+<div class="code-line"><span class="line-num">50</span><span class="line-content">  <span class="cmt">'  Date/Time: oSel.Font.Bold = True → label bold, False → value normal</span></span></div>
 </div>
 
 <div class="code-section" id="sec-signoff">
-<div class="code-line"><span class="line-num">59</span><span class="line-content">  <span class="sec">' === SIGN-OFF ===</span></span></div>
-<div class="code-line"><span class="line-num">60</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="closingLine" data-label="Closing Sentence">Please join in mentioned time.</span>"</span></span></div>
-<div class="code-line"><span class="line-num">61</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="signoffLine" data-label="Sign-off Closing Word">Best Regards,</span>"</span></span></div>
-<div class="code-line"><span class="line-num">62</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="senderName" data-label="Sender Full Name (add prefix e.g. Eng. Dr. / suffix e.g. PE PMP)">Sarayu P.</span>"</span></span></div>
-<div class="code-line"><span class="line-num">63</span><span class="line-content">  <span class="cmt">'  Prefix: "Eng. Sarayu P." / "Dr. Sarayu P."</span></span></div>
-<div class="code-line"><span class="line-num">64</span><span class="line-content">  <span class="cmt">'  Suffix: "Sarayu P., PE" / "Sarayu P., PMP"</span></span></div>
+<div class="code-line"><span class="line-num">51</span><span class="line-content">  <span class="sec">' === SIGN-OFF ===</span></span></div>
+<div class="code-line"><span class="line-num">52</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="closingLine" data-label="Closing sentence">Please join in mentioned time.</span>"</span></span></div>
+<div class="code-line"><span class="line-num">53</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="signoffLine" data-label="Sign-off word (e.g. Best Regards,)">Best Regards,</span>"</span></span></div>
+<div class="code-line"><span class="line-num">54</span><span class="line-content">  <span class="var">oSel</span>.<span class="fn">TypeText</span> <span class="str">"<span class="editable-val" contenteditable="true" data-field="senderName" data-label="Sender full name (e.g. Eng. Sarayu P. / Sarayu P., PE)">Sarayu P.</span>"</span></span></div>
+<div class="code-line"><span class="line-num">55</span><span class="line-content">  <span class="cmt">'  Prefix: "Eng. Sarayu P." / "Dr. Sarayu P."  Suffix: "Sarayu P., PE"</span></span></div>
 </div>
 
 <div class="code-section">
-<div class="code-line"><span class="line-num">65</span><span class="line-content"></span></div>
-<div class="code-line"><span class="line-num">66</span><span class="line-content"><span class="kw">End Sub</span></span></div>
+<div class="code-line"><span class="line-num">56</span><span class="line-content"></span></div>
+<div class="code-line"><span class="line-num">57</span><span class="line-content"><span class="kw">End Sub</span></span></div>
 </div>
 
-    </div></div>
-
-    <div class="copy-bar">
-      <div class="copy-info">✎ Edit yellow/orange values → Copy Full VBA Code → Alt+F11 in Outlook → Module → Ctrl+V → Ctrl+S</div>
-      <button class="copy-btn" id="copyBtn" onclick="copyFullCode()">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Copy Full VBA Code
-      </button>
-    </div>
+  </div></div><!-- code-wrap / code-scroll -->
+  <div class="copy-bar">
+    <div class="copy-info">✎ Edit tokens → Copy Full VBA → Alt+F11 in Outlook → Insert Module → Ctrl+V → Ctrl+S</div>
+    <button class="copy-btn" id="copyBtn" onclick="copyFullCode()">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Copy Full VBA Code
+    </button>
   </div>
-</div>
+</div><!-- end code-panel -->
 
-<div class="edit-modal" id="editModal">
+<!-- ══════ PREVIEW PANEL ══════ -->
+<div class="preview-panel">
+  <div class="preview-header">
+    <div class="ph-dot"></div>
+    <div class="ph-title">Live Preview</div>
+    <div class="ph-sub">Outlook appointment body</div>
+  </div>
+  <div class="preview-scroll">
+    <div class="outlook-window">
+      <!-- toolbar -->
+      <div class="ol-toolbar">
+        <div class="ol-btn send">Send</div>
+        <div class="ol-btn">Save Draft</div>
+        <div class="ol-btn">Teams Meeting</div>
+      </div>
+      <!-- To -->
+      <div class="ol-field">
+        <div class="ol-lbl">To</div>
+        <div class="ol-to-pill">recipients@company.com</div>
+      </div>
+      <!-- Subject -->
+      <div class="ol-field">
+        <div class="ol-lbl">Subject</div>
+        <div class="ol-subj-val" id="prev-subject">Project Discussion — xxxx Team</div>
+      </div>
+      <!-- Location -->
+      <div class="ol-field">
+        <div class="ol-lbl">Location</div>
+        <div style="font-size:11px;color:#444;font-family:'Calibri',sans-serif;padding-top:1px" id="prev-loc-field">MS Teams</div>
+      </div>
+      <!-- Body -->
+      <div class="ol-body">
+        <div class="ol-para" id="prev-greeting">Dear xxxx Team,</div>
+        <div class="ol-para" id="prev-desc">I would like to appoint for meeting of Monthly Progress Review</div>
+        <div class="ol-field-row"><span class="ol-fl ol-bold">Date</span><span class="ol-fsep">     :</span><span id="prev-date">Tuesday, 8 April 2026</span></div>
+        <div class="ol-field-row"><span class="ol-fl ol-bold">Time</span><span class="ol-fsep">     :</span><span id="prev-time">09:00 – 10:00</span></div>
+        <div class="ol-field-row"><span class="ol-fl">Location</span><span class="ol-fsep"> :</span><span id="prev-loc-body">MS Teams</span></div>
+        <div class="ol-ag-title">Agendas</div>
+        <hr class="ol-ag-hr">
+        <div id="prev-agendas">
+          <div class="ol-ag-item">1. &nbsp;[Agenda 1]</div>
+          <div class="ol-ag-item">2. &nbsp;[Agenda 2]</div>
+          <div class="ol-ag-item">3. &nbsp;[Agenda 3]</div>
+          <div class="ol-ag-item">4. &nbsp;[Agenda 4]</div>
+          <div class="ol-ag-item">5. &nbsp;Action items for proceed</div>
+        </div>
+        <div class="ol-closer" id="prev-closing">Please join in mentioned time.</div>
+        <div class="ol-signoff" id="prev-signoff">Best Regards,</div>
+        <div class="ol-sender" id="prev-sender">Sarayu P.</div>
+      </div>
+    </div>
+    <div class="preview-hint">↑ updates live as you edit tokens</div>
+  </div>
+</div><!-- end preview-panel -->
+
+</div><!-- end layout -->
+
+<!-- ══ EDIT MODAL ══ -->
+<div class="modal-overlay" id="editModal">
   <div class="modal-box">
     <div class="modal-title" id="modalTitle">Edit value</div>
-    <div class="modal-subtitle" id="modalSubtitle">Baked into copied VBA code</div>
+    <div class="modal-subtitle" id="modalSubtitle">Changes reflected in preview &amp; copied VBA code</div>
     <div class="modal-label">New value:</div>
     <input class="modal-input" id="modalInput" type="text" />
     <div class="modal-actions">
@@ -316,180 +425,251 @@
   </div>
 </div>
 
-<div class="restart-modal" id="restartModal">
+<!-- ══ RESTART MODAL ══ -->
+<div class="modal-overlay" id="restartModal">
   <div class="restart-box">
     <div class="restart-icon">↺</div>
     <h3>Reset all values?</h3>
-    <p>All editable fields will return to their original defaults. Your changes will be lost.</p>
+    <p>All editable tokens return to original defaults. Your changes will be lost.</p>
     <div class="restart-actions">
       <button class="btn-no" onclick="closeRestart()">Cancel</button>
-      <button class="btn-restart" onclick="doRestart()">Reset &amp; Start Fresh</button>
+      <button class="btn-rst" onclick="doRestart()">Reset &amp; Start Fresh</button>
     </div>
   </div>
 </div>
 
 <script>
+// ── Store originals on load ──
 const originals = {};
-document.querySelectorAll('.editable-val,.module-name-val').forEach(el => {
+document.querySelectorAll('.editable-val,.module-name-val,.suffix-val').forEach(el => {
   originals[el.getAttribute('data-field')] = el.textContent;
 });
 
-const steps = document.querySelectorAll('[data-target]');
+// ── Hover: highlight code section ──
 let activeTarget = null;
-steps.forEach(step => {
+document.querySelectorAll('[data-target]').forEach(step => {
   step.addEventListener('mouseenter', () => {
     const id = step.getAttribute('data-target');
-    if (activeTarget) { document.getElementById(activeTarget)?.classList.remove('highlighted'); document.querySelectorAll('.step-item,.custom-item').forEach(s=>s.classList.remove('active')); }
+    if (activeTarget) {
+      document.getElementById(activeTarget)?.classList.remove('highlighted');
+      document.querySelectorAll('.step-item,.custom-item').forEach(s => s.classList.remove('active'));
+    }
     activeTarget = id;
     const t = document.getElementById(id);
     if (t) { t.classList.add('highlighted'); step.classList.add('active'); t.scrollIntoView({behavior:'smooth',block:'nearest'}); }
   });
   step.addEventListener('mouseleave', () => {
-    if (activeTarget) { document.getElementById(activeTarget)?.classList.remove('highlighted'); step.classList.remove('active'); activeTarget=null; }
+    if (activeTarget) {
+      document.getElementById(activeTarget)?.classList.remove('highlighted');
+      step.classList.remove('active');
+      activeTarget = null;
+    }
   });
 });
 
+// ── Edit modal ──
 let currentEditable = null;
-document.querySelectorAll('.editable-val,.module-name-val').forEach(el => {
+
+document.querySelectorAll('.editable-val,.module-name-val,.suffix-val').forEach(el => {
   el.addEventListener('click', e => {
-    e.stopPropagation(); currentEditable = el;
-    document.getElementById('modalTitle').textContent = 'Edit: ' + (el.getAttribute('data-label')||'value');
+    e.stopPropagation();
+    currentEditable = el;
+    document.getElementById('modalTitle').textContent = 'Edit: ' + (el.getAttribute('data-label') || 'value');
     document.getElementById('modalSubtitle').textContent = 'field: ' + el.getAttribute('data-field');
     document.getElementById('modalInput').value = el.textContent;
     document.getElementById('editModal').classList.add('open');
-    setTimeout(()=>{ const i=document.getElementById('modalInput'); i.focus(); i.select(); },50);
+    setTimeout(() => { const i = document.getElementById('modalInput'); i.focus(); i.select(); }, 50);
   });
   el.addEventListener('keydown', e => e.preventDefault());
 });
-function closeModal(){ document.getElementById('editModal').classList.remove('open'); currentEditable=null; }
-function applyModal(){
-  if(!currentEditable) return;
+
+function closeModal() {
+  document.getElementById('editModal').classList.remove('open');
+  currentEditable = null;
+}
+
+function applyModal() {
+  if (!currentEditable) return;
   const val = document.getElementById('modalInput').value;
   currentEditable.textContent = val;
   const field = currentEditable.getAttribute('data-field');
-  if(field==='moduleName'||field==='moduleName2'){ document.querySelectorAll('[data-field="moduleName"],[data-field="moduleName2"]').forEach(el=>el.textContent=val); }
-  currentEditable.style.background='rgba(126,200,160,.25)';
-  setTimeout(()=>{currentEditable.style.background=''},700);
+  // Sync module name fields
+  if (field === 'moduleName' || field === 'moduleName2') {
+    document.querySelectorAll('[data-field="moduleName"],[data-field="moduleName2"]').forEach(el => el.textContent = val);
+  }
+  // Flash token
+  currentEditable.style.background = 'rgba(126,200,160,.28)';
+  setTimeout(() => { currentEditable.style.background = ''; }, 700);
+  // Update preview
+  updatePreview(field);
   closeModal();
 }
-document.getElementById('modalInput').addEventListener('keydown', e=>{ if(e.key==='Enter') applyModal(); if(e.key==='Escape') closeModal(); });
-document.getElementById('editModal').addEventListener('click', e=>{ if(e.target===document.getElementById('editModal')) closeModal(); });
 
-function openRestart(){ document.getElementById('restartModal').classList.add('open'); }
-function closeRestart(){ document.getElementById('restartModal').classList.remove('open'); }
-function doRestart(){
-  document.querySelectorAll('.editable-val,.module-name-val').forEach(el=>{
-    const f=el.getAttribute('data-field');
-    if(originals[f]!==undefined){ el.textContent=originals[f]; el.style.background='rgba(232,133,106,.2)'; setTimeout(()=>{el.style.background=''},800); }
+document.getElementById('modalInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') applyModal();
+  if (e.key === 'Escape') closeModal();
+});
+document.getElementById('editModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('editModal')) closeModal();
+});
+
+// ── Restart ──
+function openRestart() { document.getElementById('restartModal').classList.add('open'); }
+function closeRestart() { document.getElementById('restartModal').classList.remove('open'); }
+function doRestart() {
+  document.querySelectorAll('.editable-val,.module-name-val,.suffix-val').forEach(el => {
+    const f = el.getAttribute('data-field');
+    if (originals[f] !== undefined) {
+      el.textContent = originals[f];
+      el.style.background = 'rgba(232,133,106,.22)';
+      setTimeout(() => { el.style.background = ''; }, 800);
+    }
   });
+  updatePreview('all');
   closeRestart();
-  document.querySelector('.code-scroll').scrollTop=0;
+  document.querySelector('.code-scroll').scrollTop = 0;
 }
-document.getElementById('restartModal').addEventListener('click', e=>{ if(e.target===document.getElementById('restartModal')) closeRestart(); });
+document.getElementById('restartModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('restartModal')) closeRestart();
+});
 
-function g(field){ const el=document.querySelector('[data-field="'+field+'"]'); return el?el.textContent.trim():''; }
+// ── Helper: read current value of a field ──
+function gv(field) {
+  const el = document.querySelector('[data-field="' + field + '"]');
+  return el ? el.textContent : '';
+}
 
-function copyFullCode(){
-  const subName   = g('subName')   || 'CreateMeetingFromTemplate';
-  const defTitle  = g('defaultTitle')  || 'Project Discussion';
-  const defTeam   = g('defaultTeam')   || 'xxxx';
-  const defDesc   = g('defaultDesc')   || 'Monthly Progress Review';
-  const defStart  = g('defaultStart')  || '09:00';
-  const defEnd    = g('defaultEnd')    || '10:00';
-  const defLoc    = g('defaultLocation')|| 'MS Teams';
-  const defAg5    = g('defaultAgenda5')|| 'Action items for proceed';
-  const greeting  = g('greetingPrefix')|| 'Dear ';
-  const opening   = g('openingLine')   || 'I would like to appoint for meeting of ';
-  const closing   = g('closingLine')   || 'Please join in mentioned time.';
-  const signoff   = g('signoffLine')   || 'Best Regards,';
-  const sender    = g('senderName')    || 'Sarayu P.';
+// ── Flash a preview element ──
+function flash(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('flash');
+  void el.offsetWidth; // reflow
+  el.classList.add('flash');
+}
 
-  const em = '\u2014';  // em dash
+// ── Update live preview ──
+// Called after every edit. field = which data-field changed (or 'all' for full refresh)
+function updatePreview(field) {
+  const title   = gv('defaultTitle')   || 'Project Discussion';
+  const team    = gv('defaultTeam')    || 'xxxx';
+  const sfx     = gv('teamSuffix')     || ' Team,';   // ← green token
+  const desc    = gv('defaultDesc')    || 'Monthly Progress Review';
+  const start   = gv('defaultStart')   || '09:00';
+  const end     = gv('defaultEnd')     || '10:00';
+  const loc     = gv('defaultLocation')|| 'MS Teams';
+  const ag5     = gv('defaultAgenda5') || 'Action items for proceed';
+  const greet   = gv('greetingPrefix') || 'Dear ';
+  const opening = gv('openingLine')    || 'I would like to appoint for meeting of ';
+  const closing = gv('closingLine')    || 'Please join in mentioned time.';
+  const signoff = gv('signoffLine')    || 'Best Regards,';
+  const sender  = gv('senderName')     || 'Sarayu P.';
 
-  const code = [
+  // Subject: Title — Team + suffix (strip trailing comma for subject line)
+  const sfxForSubject = sfx.replace(/,\s*$/, '');
+  const newSubject = title + ' \u2014 ' + team + sfxForSubject;
+  const newGreeting = greet + team + sfx;
+  const newDesc = opening + desc;
+  const newTime = start + ' \u2013 ' + end;
+  const newAgendas =
+    '<div class="ol-ag-item">1. &nbsp;[Agenda 1]</div>' +
+    '<div class="ol-ag-item">2. &nbsp;[Agenda 2]</div>' +
+    '<div class="ol-ag-item">3. &nbsp;[Agenda 3]</div>' +
+    '<div class="ol-ag-item">4. &nbsp;[Agenda 4]</div>' +
+    '<div class="ol-ag-item">5. &nbsp;' + ag5 + '</div>';
+
+  // Apply & flash only changed targets
+  function setAndFlash(id, newVal, isHTML) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const changed = isHTML ? el.innerHTML !== newVal : el.textContent !== newVal;
+    if (changed || field === 'all') {
+      if (isHTML) el.innerHTML = newVal; else el.textContent = newVal;
+      flash(id);
+    }
+  }
+
+  setAndFlash('prev-subject',  newSubject,  false);
+  setAndFlash('prev-greeting', newGreeting, false);
+  setAndFlash('prev-desc',     newDesc,     false);
+  setAndFlash('prev-time',     newTime,     false);
+  setAndFlash('prev-loc-field',loc,         false);
+  setAndFlash('prev-loc-body', loc,         false);
+  setAndFlash('prev-agendas',  newAgendas,  true);
+  setAndFlash('prev-closing',  closing,     false);
+  setAndFlash('prev-signoff',  signoff,     false);
+  setAndFlash('prev-sender',   sender,      false);
+}
+
+// Initialise preview on load
+updatePreview('all');
+
+// ── Copy Full VBA Code ──
+function copyFullCode() {
+  const subName  = gv('subName')        || 'CreateMeetingFromTemplate';
+  const defTitle = gv('defaultTitle')   || 'Project Discussion';
+  const defTeam  = gv('defaultTeam')    || 'xxxx';
+  const teamSfx  = gv('teamSuffix')     || ' Team,';
+  const defDesc  = gv('defaultDesc')    || 'Monthly Progress Review';
+  const defStart = gv('defaultStart')   || '09:00';
+  const defEnd   = gv('defaultEnd')     || '10:00';
+  const defLoc   = gv('defaultLocation')|| 'MS Teams';
+  const defAg5   = gv('defaultAgenda5') || 'Action items for proceed';
+  const greeting = gv('greetingPrefix') || 'Dear ';
+  const opening  = gv('openingLine')    || 'I would like to appoint for meeting of ';
+  const closing  = gv('closingLine')    || 'Please join in mentioned time.';
+  const signoff  = gv('signoffLine')    || 'Best Regards,';
+  const sender   = gv('senderName')     || 'Sarayu P.';
+
+  const em = '\u2014';
+
+  const lines = [
 "' ============================================================",
 "'  HELPER: Parse date from many possible input formats",
 "' ============================================================",
 "Function ParseDate(s As String) As Date",
 "    Dim d As Date",
 "    s = Trim(s)",
-"",
 "    On Error Resume Next",
 "    d = CDate(s)",
-"    If Err.Number = 0 And d <> 0 Then",
-"        ParseDate = d",
-"        Exit Function",
-"    End If",
+"    If Err.Number = 0 And d <> 0 Then ParseDate = d : Exit Function",
 "    Err.Clear",
-"",
 "    Dim parts() As String",
 "    Dim day As Integer, mon As Integer, yr As Integer",
-"",
-"    ' ISO: 2026-04-07",
 "    If s Like \"####-##-##\" Then",
-"        parts = Split(s, \"-\")",
-"        yr = CInt(parts(0)): mon = CInt(parts(1)): day = CInt(parts(2))",
-"        GoTo BuildDate",
+"        parts = Split(s, \"-\") : yr=CInt(parts(0)) : mon=CInt(parts(1)) : day=CInt(parts(2)) : GoTo BuildDate",
 "    End If",
-"",
-"    ' Slash: 07/04/2026",
 "    If InStr(s, \"/\") > 0 Then",
 "        parts = Split(s, \"/\")",
-"        If UBound(parts) = 2 Then",
-"            day = CInt(parts(0)): mon = CInt(parts(1)): yr = CInt(parts(2))",
-"            GoTo BuildDate",
-"        End If",
+"        If UBound(parts)=2 Then day=CInt(parts(0)):mon=CInt(parts(1)):yr=CInt(parts(2)):GoTo BuildDate",
 "    End If",
-"",
-"    ' Dash: 07-04-2026",
 "    If InStr(s, \"-\") > 0 Then",
 "        parts = Split(s, \"-\")",
-"        If UBound(parts) = 2 Then",
-"            day = CInt(parts(0)): mon = CInt(parts(1)): yr = CInt(parts(2))",
-"            GoTo BuildDate",
-"        End If",
+"        If UBound(parts)=2 Then day=CInt(parts(0)):mon=CInt(parts(1)):yr=CInt(parts(2)):GoTo BuildDate",
 "    End If",
-"",
-"    ' Text month: \"7 April 2026\" / \"April 7, 2026\"",
-"    Dim months(12) As String",
-"    Dim monthsFull(12) As String",
-"    months(1)=\"jan\":  months(2)=\"feb\":  months(3)=\"mar\":  months(4)=\"apr\"",
-"    months(5)=\"may\":  months(6)=\"jun\":  months(7)=\"jul\":  months(8)=\"aug\"",
-"    months(9)=\"sep\":  months(10)=\"oct\": months(11)=\"nov\": months(12)=\"dec\"",
-"    monthsFull(1)=\"january\":   monthsFull(2)=\"february\":  monthsFull(3)=\"march\"",
-"    monthsFull(4)=\"april\":     monthsFull(5)=\"may\":       monthsFull(6)=\"june\"",
-"    monthsFull(7)=\"july\":      monthsFull(8)=\"august\":    monthsFull(9)=\"september\"",
-"    monthsFull(10)=\"october\":  monthsFull(11)=\"november\": monthsFull(12)=\"december\"",
-"",
-"    Dim sLow As String: sLow = LCase(Replace(s, \",\", \"\"))",
+"    Dim months(12) As String, monthsFull(12) As String",
+"    months(1)=\"jan\":months(2)=\"feb\":months(3)=\"mar\":months(4)=\"apr\"",
+"    months(5)=\"may\":months(6)=\"jun\":months(7)=\"jul\":months(8)=\"aug\"",
+"    months(9)=\"sep\":months(10)=\"oct\":months(11)=\"nov\":months(12)=\"dec\"",
+"    monthsFull(1)=\"january\":monthsFull(2)=\"february\":monthsFull(3)=\"march\"",
+"    monthsFull(4)=\"april\":monthsFull(5)=\"may\":monthsFull(6)=\"june\"",
+"    monthsFull(7)=\"july\":monthsFull(8)=\"august\":monthsFull(9)=\"september\"",
+"    monthsFull(10)=\"october\":monthsFull(11)=\"november\":monthsFull(12)=\"december\"",
+"    Dim sLow As String : sLow = LCase(Replace(s, \",\", \"\"))",
 "    parts = Split(sLow, \" \")",
-"",
 "    If UBound(parts) >= 2 Then",
 "        Dim m As Integer",
 "        For m = 1 To 12",
-"            If parts(1) = months(m) Or parts(1) = monthsFull(m) Then",
-"                day = CInt(parts(0)): mon = m: yr = CInt(parts(2)): GoTo BuildDate",
-"            End If",
-"            If parts(0) = months(m) Or parts(0) = monthsFull(m) Then",
-"                mon = m: day = CInt(parts(1)): yr = CInt(parts(2)): GoTo BuildDate",
-"            End If",
+"            If parts(1)=months(m) Or parts(1)=monthsFull(m) Then day=CInt(parts(0)):mon=m:yr=CInt(parts(2)):GoTo BuildDate",
+"            If parts(0)=months(m) Or parts(0)=monthsFull(m) Then mon=m:day=CInt(parts(1)):yr=CInt(parts(2)):GoTo BuildDate",
 "        Next m",
 "    End If",
-"",
-"    On Error GoTo 0",
-"    ParseDate = 0",
-"    Exit Function",
-"",
+"    On Error GoTo 0 : ParseDate = 0 : Exit Function",
 "BuildDate:",
 "    On Error Resume Next",
 "    d = DateSerial(yr, mon, day)",
-"    If Err.Number = 0 Then",
-"        ParseDate = d",
-"    Else",
-"        ParseDate = 0",
-"    End If",
-"    Err.Clear",
-"    On Error GoTo 0",
+"    If Err.Number=0 Then ParseDate=d Else ParseDate=0",
+"    Err.Clear : On Error GoTo 0",
 "End Function",
 "",
 "' ============================================================",
@@ -497,23 +677,15 @@ function copyFullCode(){
 "' ============================================================",
 "Function ParseTime(s As String, ByRef use24hr As Boolean) As Date",
 "    Dim t As Date",
-"    s = Trim(s)",
-"    use24hr = False",
-"",
-"    If Len(s) = 4 And IsNumeric(s) Then s = Left(s, 2) & \":\" & Right(s, 2)",
-"    If Len(s) = 3 And IsNumeric(s) Then s = \"0\" & Left(s, 1) & \":\" & Right(s, 2)",
-"",
-"    Dim sUp As String: sUp = UCase(s)",
-"    If InStr(sUp, \"AM\") = 0 And InStr(sUp, \"PM\") = 0 Then use24hr = True",
-"",
+"    s = Trim(s) : use24hr = False",
+"    If Len(s)=4 And IsNumeric(s) Then s = Left(s,2) & \":\" & Right(s,2)",
+"    If Len(s)=3 And IsNumeric(s) Then s = \"0\" & Left(s,1) & \":\" & Right(s,2)",
+"    Dim sUp As String : sUp = UCase(s)",
+"    If InStr(sUp,\"AM\")=0 And InStr(sUp,\"PM\")=0 Then use24hr = True",
 "    On Error Resume Next",
 "    t = CDate(s)",
-"    If Err.Number = 0 Then",
-"        ParseTime = t",
-"        Exit Function",
-"    End If",
-"    Err.Clear",
-"    On Error GoTo 0",
+"    If Err.Number=0 Then ParseTime=t : Exit Function",
+"    Err.Clear : On Error GoTo 0",
 "    ParseTime = 0",
 "End Function",
 "",
@@ -521,17 +693,11 @@ function copyFullCode(){
 "'  HELPER: Format date in English \u2014 ignores Windows locale",
 "' ============================================================",
 "Function FormatDateEnglish(d As Date) As String",
-"    Dim dayNames(7) As String",
-"    Dim monNames(12) As String",
-"    dayNames(1)=\"Sunday\":    dayNames(2)=\"Monday\":    dayNames(3)=\"Tuesday\"",
-"    dayNames(4)=\"Wednesday\": dayNames(5)=\"Thursday\":  dayNames(6)=\"Friday\"",
-"    dayNames(7)=\"Saturday\"",
-"    monNames(1)=\"January\":   monNames(2)=\"February\":  monNames(3)=\"March\"",
-"    monNames(4)=\"April\":     monNames(5)=\"May\":       monNames(6)=\"June\"",
-"    monNames(7)=\"July\":      monNames(8)=\"August\":    monNames(9)=\"September\"",
-"    monNames(10)=\"October\":  monNames(11)=\"November\": monNames(12)=\"December\"",
-"    FormatDateEnglish = dayNames(Weekday(d)) & \", \" & Day(d) & \" \" & _",
-"                        monNames(Month(d)) & \" \" & Year(d)",
+"    Dim dn(7) As String, mn(12) As String",
+"    dn(1)=\"Sunday\":dn(2)=\"Monday\":dn(3)=\"Tuesday\":dn(4)=\"Wednesday\":dn(5)=\"Thursday\":dn(6)=\"Friday\":dn(7)=\"Saturday\"",
+"    mn(1)=\"January\":mn(2)=\"February\":mn(3)=\"March\":mn(4)=\"April\":mn(5)=\"May\":mn(6)=\"June\"",
+"    mn(7)=\"July\":mn(8)=\"August\":mn(9)=\"September\":mn(10)=\"October\":mn(11)=\"November\":mn(12)=\"December\"",
+"    FormatDateEnglish = dn(Weekday(d)) & \", \" & Day(d) & \" \" & mn(Month(d)) & \" \" & Year(d)",
 "End Function",
 "",
 "' ============================================================",
@@ -539,9 +705,9 @@ function copyFullCode(){
 "' ============================================================",
 "Function FormatTimeDisplay(t As Date, use24hr As Boolean) As String",
 "    If use24hr Then",
-"        FormatTimeDisplay = Format(t, \"hh:mm\")        ' e.g. 15:00",
+"        FormatTimeDisplay = Format(t, \"hh:mm\")",
 "    Else",
-"        FormatTimeDisplay = Format(t, \"hh:mm AM/PM\")  ' e.g. 03:00 PM",
+"        FormatTimeDisplay = Format(t, \"hh:mm AM/PM\")",
 "    End If",
 "End Function",
 "",
@@ -573,78 +739,51 @@ function copyFullCode(){
 "    Dim meetingDate As String",
 "    Dim parsedDate As Date",
 "    Dim dateOK As Boolean: dateOK = False",
-"",
 "    Do While Not dateOK",
 `        meetingDate = InputBox( _`,
 `            "Meeting Date \u2014 any format works:" & vbCrLf & vbCrLf & _`,
-`            "  7 April 2026" & vbCrLf & _`,
-`            "  7 Apr 2026"   & vbCrLf & _`,
-`            "  07/04/2026"   & vbCrLf & _`,
-`            "  2026-04-07"   & vbCrLf & _`,
-`            "  April 7, 2026", _`,
+`            "  7 April 2026" & vbCrLf & "  7 Apr 2026" & vbCrLf & _`,
+`            "  07/04/2026" & vbCrLf & "  2026-04-07" & vbCrLf & "  April 7, 2026", _`,
 `            "Step 4 - Date", Format(Now + 1, "d mmmm yyyy"))`,
 "        If meetingDate = \"\" Then Exit Sub",
 "        parsedDate = ParseDate(meetingDate)",
 "        If parsedDate = 0 Then",
-`            MsgBox "Could not read that date. Please try again." & vbCrLf & _`,
-`                   "Tip: try  7 April 2026  or  07/04/2026", _`,
+`            MsgBox "Could not read that date. Try:  7 April 2026  or  07/04/2026", _`,
 `                   vbExclamation, "Date Error"`,
-"        Else",
-"            dateOK = True",
+"        Else : dateOK = True",
 "        End If",
 "    Loop",
 "",
 "    ' === STEP 5: START TIME ===",
-"    Dim timeStart As String",
-"    Dim parsedStart As Date",
-"    Dim use24Start As Boolean",
-"    Dim startOK As Boolean: startOK = False",
-"",
+"    Dim timeStart As String, parsedStart As Date, use24Start As Boolean, startOK As Boolean",
+"    startOK = False",
 "    Do While Not startOK",
 `        timeStart = InputBox( _`,
 `            "Start Time \u2014 any format works:" & vbCrLf & vbCrLf & _`,
-`            "  09:00    (24-hr)" & vbCrLf & _`,
-`            "  9:00 AM  (12-hr)" & vbCrLf & _`,
-`            "  0900     (no colon)", _`,
+`            "  09:00 (24-hr)  /  9:00 AM (12-hr)  /  0900 (no colon)", _`,
 `            "Step 5 - Start Time", "${defStart}")`,
 "        If timeStart = \"\" Then Exit Sub",
 "        parsedStart = ParseTime(timeStart, use24Start)",
-"        If parsedStart = 0 Then",
-`            MsgBox "Could not read start time. Please try again." & vbCrLf & _`,
-`                   "Tip: try  09:00  or  9:00 AM", vbExclamation, "Time Error"`,
-"        Else",
-"            startOK = True",
-"        End If",
+`        If parsedStart = 0 Then MsgBox "Could not read start time.", vbExclamation Else startOK = True`,
 "    Loop",
 "",
 "    ' === STEP 5b: END TIME ===",
-"    Dim timeEnd As String",
-"    Dim parsedEnd As Date",
-"    Dim use24End As Boolean",
-"    Dim endOK As Boolean: endOK = False",
-"",
+"    Dim timeEnd As String, parsedEnd As Date, use24End As Boolean, endOK As Boolean",
+"    endOK = False",
 "    Do While Not endOK",
 `        timeEnd = InputBox( _`,
 `            "End Time \u2014 any format works:" & vbCrLf & vbCrLf & _`,
-`            "  10:00    (24-hr)" & vbCrLf & _`,
-`            "  10:00 AM (12-hr)" & vbCrLf & _`,
-`            "  1000     (no colon)", _`,
+`            "  10:00 (24-hr)  /  10:00 AM (12-hr)  /  1000 (no colon)", _`,
 `            "Step 5 - End Time", "${defEnd}")`,
 "        If timeEnd = \"\" Then Exit Sub",
 "        parsedEnd = ParseTime(timeEnd, use24End)",
-"        If parsedEnd = 0 Then",
-`            MsgBox "Could not read end time. Please try again." & vbCrLf & _`,
-`                   "Tip: try  10:00  or  10:00 AM", vbExclamation, "Time Error"`,
-"        Else",
-"            endOK = True",
-"        End If",
+`        If parsedEnd = 0 Then MsgBox "Could not read end time.", vbExclamation Else endOK = True`,
 "    Loop",
 "",
 "    ' === STEP 6: LOCATION ===",
 "    Dim location As String",
 `    location = InputBox( _`,
-`        "Location:" & vbCrLf & _`,
-`        "(e.g. MS Teams  /  Room A  /  MS Teams + Room A)", _`,
+`        "Location: (e.g. MS Teams / Room A / MS Teams + Room A)", _`,
 `        "Step 6 - Location", "${defLoc}")`,
 "    If location = \"\" Then Exit Sub",
 "",
@@ -657,12 +796,10 @@ function copyFullCode(){
 `    ag(5) = InputBox("Agenda Item 5: (leave blank to skip)", "Step 7 - Agendas [5/5]", _`,
 `             "${defAg5}")`,
 "",
-"    ' === COMBINE DATE + TIME INTO DATETIME ===",
-"    Dim startDT As Date",
-"    Dim endDT As Date",
+"    ' === COMBINE DATE + TIME ===",
+"    Dim startDT As Date, endDT As Date",
 "    startDT = parsedDate + TimeValue(Format(parsedStart, \"hh:mm:ss\"))",
 "    endDT   = parsedDate + TimeValue(Format(parsedEnd,   \"hh:mm:ss\"))",
-"",
 "    Dim duration As Long",
 "    duration = DateDiff(\"n\", startDT, endDT)",
 "    If duration <= 0 Then duration = 60",
@@ -670,7 +807,6 @@ function copyFullCode(){
 "    ' === CREATE OUTLOOK APPOINTMENT ===",
 "    Dim oAppt As Outlook.AppointmentItem",
 "    Set oAppt = Outlook.Application.CreateItem(olAppointmentItem)",
-"",
 "    With oAppt",
 `        .Subject       = subject & " \u2014 " & recipientTeam & " Team"`,
 "        .Location      = location",
@@ -679,125 +815,79 @@ function copyFullCode(){
 "        .Duration      = duration",
 "    End With",
 "",
-"    ' === ADD TEAMS LINK IF LOCATION CONTAINS \"TEAMS\" ===",
+"    ' === ADD TEAMS LINK (if location contains \"teams\") ===",
 "    If InStr(LCase(location), \"teams\") > 0 Then",
 "        On Error Resume Next",
-"        Dim oAddin As Office.COMAddIn",
-"        Dim oAddinObj As Object",
+"        Dim oAddin As Office.COMAddIn, oAddinObj As Object",
 "        For Each oAddin In Outlook.Application.COMAddIns",
 "            If InStr(LCase(oAddin.Description), \"teams\") > 0 Or _",
 "               InStr(LCase(oAddin.ProgID), \"teamsaddin\") > 0 Then",
-"                Set oAddinObj = oAddin.Object",
-"                Exit For",
+"                Set oAddinObj = oAddin.Object : Exit For",
 "            End If",
 "        Next oAddin",
-"        If Not oAddinObj Is Nothing Then",
-"            oAddinObj.ConvertToTeamsMeeting oAppt",
-"        End If",
-"        On Error GoTo 0",
-"        Set oAddinObj = Nothing",
+"        If Not oAddinObj Is Nothing Then oAddinObj.ConvertToTeamsMeeting oAppt",
+"        On Error GoTo 0 : Set oAddinObj = Nothing",
 "    End If",
 "",
-"    ' === DISPLAY WINDOW FIRST ===",
 "    oAppt.Display",
 "",
-"    ' === WRITE BODY USING WORD EDITOR (supports bold) ===",
-"    Dim oInsp As Outlook.Inspector",
-"    Dim oDoc  As Object",
-"    Dim oSel  As Object",
-"",
+"    ' === WRITE BODY via WordEditor (bold label support) ===",
+"    Dim oInsp As Outlook.Inspector, oDoc As Object, oSel As Object",
 "    Set oInsp = oAppt.GetInspector",
 "    Set oDoc  = oInsp.WordEditor",
 "    Set oSel  = oDoc.Application.Selection",
-"",
-"    ' Check if Teams link was inserted — preserve it",
-"    Dim existingBody As String",
-"    existingBody = oDoc.Content.Text",
-"",
-"    If InStr(existingBody, \"teams.microsoft.com\") > 0 Or _",
-"       InStr(existingBody, \"Join\") > 0 Then",
-"        ' Teams link exists — append our content after it",
-"        oSel.EndKey Unit:=6",
-"        oSel.TypeParagraph",
-"        oSel.TypeText String(40, \"_\")",
-"        oSel.TypeParagraph",
-"        oSel.TypeParagraph",
+"    Dim existingBody As String : existingBody = oDoc.Content.Text",
+"    If InStr(existingBody, \"teams.microsoft.com\") > 0 Or InStr(existingBody, \"Join\") > 0 Then",
+"        oSel.EndKey Unit:=6 : oSel.TypeParagraph",
+"        oSel.TypeText String(40, \"_\") : oSel.TypeParagraph : oSel.TypeParagraph",
 "    Else",
-"        ' No Teams link — clear and start fresh",
-"        oDoc.Content.Delete",
-"        oSel.EndKey Unit:=6",
+"        oDoc.Content.Delete : oSel.EndKey Unit:=6",
 "    End If",
 "",
-`    ' --- Dear line ---`,
-`    oSel.TypeText "${greeting}" & recipientTeam & " Team,"`,
-"    oSel.TypeParagraph",
-"    oSel.TypeParagraph",
-"",
-`    ' --- Description ---`,
+`    oSel.TypeText "${greeting}" & recipientTeam & "${teamSfx}"`,
+"    oSel.TypeParagraph : oSel.TypeParagraph",
 `    oSel.TypeText "${opening}" & description`,
+"    oSel.TypeParagraph : oSel.TypeParagraph",
+"    oSel.Font.Bold = True  : oSel.TypeText \"Date\"",
+"    oSel.Font.Bold = False : oSel.TypeText \"     : \" & FormatDateEnglish(parsedDate)",
 "    oSel.TypeParagraph",
+"    oSel.Font.Bold = True  : oSel.TypeText \"Time\"",
+"    oSel.Font.Bold = False : oSel.TypeText \"     : \" & FormatTimeDisplay(parsedStart, use24Start) & \" - \" & FormatTimeDisplay(parsedEnd, use24Start)",
 "    oSel.TypeParagraph",
-"",
-"    ' --- Date (bold label) ---",
-"    oSel.Font.Bold = True",
-"    oSel.TypeText \"Date\"",
-"    oSel.Font.Bold = False",
-"    oSel.TypeText \"     : \" & FormatDateEnglish(parsedDate)",
-"    oSel.TypeParagraph",
-"",
-"    ' --- Time (bold label) ---",
-"    oSel.Font.Bold = True",
-"    oSel.TypeText \"Time\"",
-"    oSel.Font.Bold = False",
-"    oSel.TypeText \"     : \" & FormatTimeDisplay(parsedStart, use24Start) & _",
-"                  \" - \" & FormatTimeDisplay(parsedEnd, use24Start)",
-"    oSel.TypeParagraph",
-"",
-"    ' --- Location ---",
-"    oSel.TypeText \"Location : \" & location",
-"    oSel.TypeParagraph",
-"    oSel.TypeParagraph",
-"",
-"    ' --- Agendas ---",
-"    oSel.TypeText \"Agendas\"",
-"    oSel.TypeParagraph",
-"    oSel.TypeText String(30, \"-\")",
-"    oSel.TypeParagraph",
-"",
-"    Dim n As Integer: n = 1",
+"    oSel.TypeText \"Location : \" & location : oSel.TypeParagraph : oSel.TypeParagraph",
+"    oSel.TypeText \"Agendas\" : oSel.TypeParagraph",
+"    oSel.TypeText String(30, \"-\") : oSel.TypeParagraph",
+"    Dim n As Integer : n = 1",
 "    Dim i As Integer",
 "    For i = 1 To 5",
 "        If Trim(ag(i)) <> \"\" Then",
-"            oSel.TypeText n & \". \" & Trim(ag(i))",
-"            oSel.TypeParagraph",
-"            n = n + 1",
+"            oSel.TypeText n & \". \" & Trim(ag(i)) : oSel.TypeParagraph : n = n + 1",
 "        End If",
 "    Next i",
-"",
 "    oSel.TypeParagraph",
 `    oSel.TypeText "${closing}"`,
-"    oSel.TypeParagraph",
-"    oSel.TypeParagraph",
+"    oSel.TypeParagraph : oSel.TypeParagraph",
 `    oSel.TypeText "${signoff}"`,
 "    oSel.TypeParagraph",
 `    oSel.TypeText "${sender}"`,
 "",
-"    ' === CLEANUP ===",
 "    Set oSel  = Nothing",
 "    Set oDoc  = Nothing",
 "    Set oInsp = Nothing",
 "    Set oAppt = Nothing",
 "",
 "End Sub"
-  ].join('\n');
+  ];
+
+  const code = lines.join('\n');
 
   navigator.clipboard.writeText(code).then(() => {
     const btn = document.getElementById('copyBtn');
     btn.classList.add('copied');
-    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied! \u2192 Paste into VBA Module';
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied! \u2192 Paste into VBA Module';
     setTimeout(() => {
       btn.classList.remove('copied');
-      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy Full VBA Code';
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy Full VBA Code';
     }, 3500);
   }).catch(() => {
     alert('Clipboard blocked. Try opening this HTML file locally (not inside an iframe).');
